@@ -20,6 +20,8 @@ import {
   globalErrorHandler,
   notFoundHandler,
 } from "./middleware/errorHandler.js";
+import dotenv from "dotenv";
+dotenv.config();
 
 const app = express();
 
@@ -42,7 +44,6 @@ app.use(express.urlencoded({ limit: "10mb", extended: true }));
 // Request logging
 app.use(requestLogger);
 
-
 // Apply rate limiter to all API routes
 app.use("/api/v1/", apiLimiter);
 
@@ -53,7 +54,7 @@ app.get("/api/v1/test/users-table", checkUsersTable);
 //
 app.use("/api/v1/auth", authLimiter, authRoutes);
 
-// 
+//
 app.use("/api/v1/locations", locationRoutes);
 app.use("/api/v1/paths", pathRoutes);
 app.use("/api/v1/navigations", navigationRoutes);
