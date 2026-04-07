@@ -1,0 +1,15 @@
+{
+  "name": "beacon(oou-campus-nav)",
+  "version": "1.0.0",
+  "description": "A modern campus navigation app designed to help students and visitors find locations and directions within Olabisi Onabanjo University (OOU).",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
