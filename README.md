@@ -2,7 +2,7 @@
 
 A modern campus navigation app designed to help students and visitors find locations and directions within Olabisi Onabanjo University (OOU).
 
-## 🚀 Features
+## Features
 
 - Search for buildings and locations
 - Interactive campus map
@@ -42,6 +42,6 @@ Beacon/
 - Real-time user location tracking
 - Offline map support
 
-## 👨‍💻 Author
+##  Author
 
 Sogbanmu Oluwafunmbi Moses
