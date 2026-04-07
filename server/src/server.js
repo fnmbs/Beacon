@@ -1,6 +1,5 @@
 import app from "./app.js";
 import dotenv from "dotenv";
-import initAuthDb from "./scripts/initAuthDb.js";
 import logger from "./utils/logger.js";
 import { validateEnvironment } from "./utils/validateEnv.js";
 
