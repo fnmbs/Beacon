@@ -1,6 +1,22 @@
 import logger from "./logger.js";
 
 export const validateEnvironment = () => {
+  // If DATABASE_URL is set, skip individual DB env checks
+  if (process.env.DATABASE_URL) {
+    const requiredEnvVars = ["JWT_SECRET", "PORT"];
+    const missingEnvVars = requiredEnvVars.filter(
+      (envVar) => !process.env[envVar],
+    );
+    if (missingEnvVars.length > 0) {
+      logger.error({
+        message: "Missing required environment variables",
+        missing: missingEnvVars,
+      });
+      process.exit(1);
+    }
+    return;
+  }
+
   const requiredEnvVars = [
     "DB_USER",
     "DB_HOST",
