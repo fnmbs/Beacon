@@ -12,8 +12,9 @@ const useRouteStore = create((set) => ({
       const res = await navigateRoute(from, to);
 
       set({ result: res.data, loading: false });
-    } catch {
-      set({ error: "No route found or an error occured", loading: false });
+    } catch (err) {
+      const msg = err.response?.data?.message || err.response?.data?.error || "No route found";
+      set({ error: msg, loading: false });
     }
   },
 
