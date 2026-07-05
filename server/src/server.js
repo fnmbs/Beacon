@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import logger from "./utils/logger.js";
 import { validateEnvironment } from "./utils/validateEnv.js";
 import initDb from "./scripts/initDb.js";
+import initAuthDb from "./scripts/initAuthDb.js";
 
 dotenv.config();
 
@@ -14,6 +15,7 @@ const PORT = process.env.PORT || 5000;
 const startServer = async () => {
   try {
     await initDb();
+    await initAuthDb();
     logger.info("Database initialized successfully");
   } catch (err) {
     logger.error({
