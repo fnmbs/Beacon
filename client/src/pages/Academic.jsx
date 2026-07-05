@@ -17,79 +17,33 @@ export default function Academic() {
   const theme = useTheme();
 
   return (
-    <div
-      className="flex flex-col min-h-screen"
-      style={{
-        background: theme.bg.primary,
-        color: theme.text.primary,
-      }}
-    >
-      {/* ── HEADER ── */}
-      <div
-        style={{
-          background: theme.bg.secondary,
-          borderBottom: `1px solid ${theme.border.light}`,
-        }}
-      >
-        <div className="px-8 pt-6 pb-4">
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Academic
-          </h1>
-
-          <p
-            className="text-sm mt-1"
-            style={{ color: theme.text.secondary }}
-          >
-            Manage faculties, departments, lecturers, and courses
-          </p>
-
-          {/* Tabs */}
-          <div className="flex gap-6 mt-6 relative">
-            {TABS.map((t) => {
-              const active = tab === t.id;
-
-              return (
-                <button
-                  key={t.id}
-                  onClick={() => setTab(t.id)}
-                  className="relative pb-3 text-sm font-medium transition-all duration-200"
-                  style={{
-                    color: active
-                      ? theme.text.primary
-                      : theme.text.secondary,
-                  }}
-                >
-                  {t.label}
-
-                  {/* underline */}
-                  <span
-                    className="absolute left-0 bottom-0 h-0.5 rounded-full transition-all duration-300"
-                    style={{
-                      width: active ? "100%" : "0%",
-                      background: theme.accent.primary,
-                    }}
-                  />
-                </button>
-              );
-            })}
-          </div>
+    <div className="flex flex-col min-h-screen" style={{ background: theme.bg.primary, color: theme.text.primary }}>
+      <div style={{ background: "#1a1a1a" }}>
+        <div className="px-8 pt-5 pb-1">
+          <h1 style={{ fontSize: 18, fontWeight: 600, letterSpacing: "-0.03em", color: "#fff" }}>Academic</h1>
+          <p style={{ fontSize: 12, color: "#888", marginTop: 2 }}>Manage faculties, departments, lecturers, and courses</p>
         </div>
+
+        <nav className="flex gap-0.5 px-6 pt-4 pb-3">
+          {TABS.map((t) => {
+            const active = tab === t.id;
+            return (
+              <button key={t.id} onClick={() => setTab(t.id)}
+                style={{ padding: "7px 14px", fontSize: 13, fontWeight: 400, color: active ? "#fff" : "#999", background: active ? "rgba(255,255,255,0.1)" : "transparent", border: "none", borderRadius: 6, cursor: "pointer", transition: "all 0.15s ease" }}
+                onMouseEnter={(e) => { if (!active) { e.target.style.background = "rgba(255,255,255,0.06)"; e.target.style.color = "#e5e5e5"; } }}
+                onMouseLeave={(e) => { if (!active) { e.target.style.background = "transparent"; e.target.style.color = "#999"; } }}>
+                {t.label}
+              </button>
+            );
+          })}
+        </nav>
       </div>
 
-      {/* ── CONTENT ── */}
       <div className="flex-1 px-8 py-6">
-        <div
-          className="h-full rounded-xl p-6"
-          style={{
-            background: theme.bg.secondary,
-            border: `1px solid ${theme.border.light}`,
-          }}
-        >
-          {tab === "Faculties" && <FacultiesTab />}
-          {tab === "Departments" && <DepartmentsTab />}
-          {tab === "Lecturers" && <LecturersTab />}
-          {tab === "Courses" && <CoursesTab />}
-        </div>
+        {tab === "Faculties" && <FacultiesTab />}
+        {tab === "Departments" && <DepartmentsTab />}
+        {tab === "Lecturers" && <LecturersTab />}
+        {tab === "Courses" && <CoursesTab />}
       </div>
     </div>
   );

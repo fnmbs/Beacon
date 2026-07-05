@@ -16,12 +16,16 @@ const createCourse = async (
   facultyId,
   departmentId,
   level,
+  eligible_levels,
   credits,
   semester,
   type,
 ) => {
+  // If `eligible_levels` provided prefer that, otherwise fall back to single `level`.
+  const eligibleLevels = Array.isArray(eligible_levels) && eligible_levels.length > 0 ? eligible_levels.map(Number) : (level ? [Number(level)] : []);
+
   const res = await pool.query(
-    `INSERT INTO courses(code,name,description,faculty_id,department_id,level,credits,semester,type) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+    `INSERT INTO courses(code,name,description,faculty_id,department_id,level,eligible_levels,credits,semester,type) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
     [
       code,
       name,
@@ -29,6 +33,7 @@ const createCourse = async (
       facultyId,
       departmentId,
       level,
+      eligibleLevels,
       credits ?? 3,
       semester,
       type,
@@ -84,13 +89,14 @@ const updateCourse = async (
   faculty_id,
   department_id,
   level,
+  eligible_levels,
   credits,
   semester,
   type,
   is_active,
 ) => {
   const res = await pool.query(
-    `UPDATE courses SET code = $1, name = $2, description = $3, faculty_id = $4, department_id = $5, level = $6, credits = $7, semester = $8, type = $9, is_active = $10 WHERE id = $11 RETURNING *`,
+    `UPDATE courses SET code = $1, name = $2, description = $3, faculty_id = $4, department_id = $5, level = $6, eligible_levels = $7, credits = $8, semester = $9, type = $10, is_active = $11 WHERE id = $12 RETURNING *`,
     [
       code,
       name,
@@ -98,6 +104,7 @@ const updateCourse = async (
       faculty_id,
       department_id,
       level,
+      eligible_levels || [],
       credits,
       semester,
       type,
@@ -151,6 +158,20 @@ const getCoursesByDepartment = async (departmentId, limit, offset) => {
   };
 };
 
+const getEligibleCoursesByDeptAndLevel = async (departmentId, level) => {
+  const res = await pool.query(
+    `SELECT c.*, d.name AS department_name, f.name AS faculty_name
+     FROM courses c
+     JOIN departments d ON d.id = c.department_id
+     JOIN faculties f ON f.id = d.faculty_id
+     WHERE c.department_id = $1 AND ($2 = ANY(c.eligible_levels) OR c.level = $2)
+     ORDER BY c.name ASC`,
+    [departmentId, level],
+  );
+
+  return res.rows;
+};
+
 const searchCourses = async (query) => {
   const courses = await pool.query(
     `SELECT c.*, d.name AS department_name, f.name AS faculty_name
@@ -175,4 +196,5 @@ export {
   getAllCourses,
   getCoursesByDepartment,
   searchCourses,
+  getEligibleCoursesByDeptAndLevel,
 };

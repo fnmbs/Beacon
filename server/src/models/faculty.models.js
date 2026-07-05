@@ -37,8 +37,6 @@ const removeFaculty = async (facultyId) => {
     [facultyId],
   );
 
-  console.log(res.rows);
-
   return res.rows[0];
 };
 

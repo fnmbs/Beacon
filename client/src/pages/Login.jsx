@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { authAPI } from "../api/axios";
+import { adminAuthAPI } from "../api/axios";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -16,18 +16,16 @@ export default function Login() {
     e.preventDefault();
     setError("");
     setLoading(true);
-
     try {
       if (!email || !password) {
         setError("Email and password are required");
         setLoading(false);
         return;
       }
-
-      const response = await authAPI.login(email, password);
+      const response = await adminAuthAPI.login(email, password);
       const { data } = response.data;
-
-      login(data.user, data.token, data.refreshToken);
+      // admin endpoint returns `admin` object
+      login(data.admin || data.user, data.token, data.refreshToken);
       navigate("/");
     } catch (err) {
       setError(
@@ -45,183 +43,147 @@ export default function Login() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "#ffffff",
-        fontFamily: "'Instrument Sans', sans-serif",
+        background: "#fff",
       }}
     >
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap');
-
-        * { box-sizing: border-box; }
-
-        .login-container {
-          width: 100%;
-          max-width: 380px;
-          padding: 0 20px;
-        }
-
-        .login-header {
-          text-align: center;
-          margin-bottom: 40px;
-        }
-
-        .login-logo {
-          font-family: 'Instrument Serif', serif;
-          font-size: 24px;
-          font-weight: 400;
-          letter-spacing: 0.04em;
-          color: #000;
-          margin-bottom: 8px;
-        }
-
-        .login-subtitle {
-          font-size: 12px;
-          color: #999;
-          letter-spacing: 0.06em;
-          text-transform: uppercase;
-          font-weight: 400;
-        }
-
-        .form-group {
-          margin-bottom: 20px;
-        }
-
-        .form-label {
-          display: block;
-          font-size: 11px;
-          font-weight: 500;
-          letter-spacing: 0.06em;
-          text-transform: uppercase;
-          color: #000;
-          margin-bottom: 8px;
-        }
-
-        .form-input {
-          width: 100%;
-          padding: 12px 14px;
-          border: 1px solid #e0e0e0;
-          border-radius: 8px;
-          font-family: 'Instrument Sans', sans-serif;
-          font-size: 14px;
-          color: #000;
-          transition: all 0.2s;
-          box-sizing: border-box;
-        }
-
-        .form-input:focus {
-          outline: none;
-          border-color: #000;
-          box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
-        }
-
-        .form-input::placeholder {
-          color: #bbb;
-        }
-
-        .error-message {
-          display: block;
-          font-size: 12px;
-          color: #d32f2f;
-          margin-top: 6px;
-          font-weight: 400;
-        }
-
-        .submit-btn {
-          width: 100%;
-          padding: 12px;
-          background: #000;
-          color: #fff;
-          border: none;
-          border-radius: 8px;
-          font-family: 'Instrument Sans', sans-serif;
-          font-size: 12px;
-          font-weight: 500;
-          letter-spacing: 0.06em;
-          text-transform: uppercase;
-          cursor: pointer;
-          transition: all 0.2s;
-          margin-top: 8px;
-        }
-
-        .submit-btn:hover:not(:disabled) {
-          background: #333;
-        }
-
-        .submit-btn:active:not(:disabled) {
-          transform: scale(0.98);
-        }
-
-        .submit-btn:disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
-        }
-
-        .auth-link {
-          text-align: center;
-          margin-top: 24px;
-          font-size: 12px;
-          color: #666;
-        }
-
-        .auth-link a {
-          color: #000;
-          text-decoration: none;
-          font-weight: 500;
-          transition: opacity 0.2s;
-        }
-
-        .auth-link a:hover {
-          opacity: 0.6;
-        }
-
-        .divider {
-          height: 1px;
-          background: #e0e0e0;
-          margin: 24px 0;
-        }
-      `}</style>
-
-      <div className="login-container">
-        <div className="login-header">
-          <div className="login-logo">BEACON</div>
-          <div className="login-subtitle">Campus Navigation</div>
+      <div style={{ width: "100%", maxWidth: "340px", padding: "0 20px" }}>
+        <div style={{ textAlign: "center", marginBottom: 40 }}>
+          <div
+            style={{
+              fontSize: 22,
+              fontWeight: 600,
+              color: "#111",
+              letterSpacing: "-0.03em",
+              marginBottom: 6,
+            }}
+          >
+            BEACON
+          </div>
+          <div
+            style={{
+              fontSize: 12,
+              color: "#999",
+              letterSpacing: "0.06em",
+              textTransform: "uppercase",
+            }}
+          >
+            Campus Navigation
+          </div>
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label className="form-label">Email Address</label>
+          <div style={{ marginBottom: 18 }}>
+            <label
+              style={{
+                display: "block",
+                fontSize: 11,
+                fontWeight: 500,
+                color: "#111",
+                marginBottom: 6,
+              }}
+            >
+              Email
+            </label>
             <input
               type="email"
-              className="form-input"
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={loading}
+              style={{
+                width: "100%",
+                padding: "10px 12px",
+                border: "1px solid #e0e0e0",
+                borderRadius: 6,
+                fontSize: 13,
+                color: "#111",
+                outline: "none",
+                transition: "border-color 0.15s",
+              }}
+              onFocus={(e) => (e.target.style.borderColor = "#111")}
+              onBlur={(e) => (e.target.style.borderColor = "#e0e0e0")}
             />
           </div>
 
-          <div className="form-group">
-            <label className="form-label">Password</label>
+          <div style={{ marginBottom: 18 }}>
+            <label
+              style={{
+                display: "block",
+                fontSize: 11,
+                fontWeight: 500,
+                color: "#111",
+                marginBottom: 6,
+              }}
+            >
+              Password
+            </label>
             <input
               type="password"
-              className="form-input"
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={loading}
+              style={{
+                width: "100%",
+                padding: "10px 12px",
+                border: "1px solid #e0e0e0",
+                borderRadius: 6,
+                fontSize: 13,
+                color: "#111",
+                outline: "none",
+                transition: "border-color 0.15s",
+              }}
+              onFocus={(e) => (e.target.style.borderColor = "#111")}
+              onBlur={(e) => (e.target.style.borderColor = "#e0e0e0")}
             />
           </div>
 
-          {error && <span className="error-message">{error}</span>}
+          {error && (
+            <span
+              style={{
+                display: "block",
+                fontSize: 12,
+                color: "#d32f2f",
+                marginBottom: 12,
+              }}
+            >
+              {error}
+            </span>
+          )}
 
-          <button type="submit" className="submit-btn" disabled={loading}>
-            {loading ? "Signing in…" : "Sign In"}
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              width: "100%",
+              padding: "10px",
+              background: "#111",
+              color: "#fff",
+              border: "none",
+              borderRadius: 6,
+              fontSize: 12,
+              fontWeight: 500,
+              cursor: "pointer",
+              transition: "opacity 0.15s",
+              opacity: loading ? 0.6 : 1,
+            }}
+            onMouseEnter={(e) => {
+              if (!loading) e.target.style.opacity = "0.8";
+            }}
+            onMouseLeave={(e) => {
+              if (!loading) e.target.style.opacity = "1";
+            }}
+          >
+            {loading ? "Signing in…" : "Sign in"}
           </button>
         </form>
 
-        <div className="divider" />
+        <div style={{ height: 1, background: "#eee", margin: "24px 0" }} />
 
-       
+        <div style={{ textAlign: "center", fontSize: 12, color: "#888" }}>
+          Admin access only. Contact your system administrator to create an
+          account.
+        </div>
       </div>
     </div>
   );

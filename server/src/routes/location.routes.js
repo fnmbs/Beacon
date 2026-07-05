@@ -4,8 +4,8 @@ import { getLocations, addLocation, deleteLocation, searchLocationsByName, getTi
 const router = express.Router();
 
 router.get("/", getLocations);
-router.get("/:id/timetable", getTimetableForLocation);
 router.get("/search", searchLocationsByName);
+router.get("/:id/timetable", getTimetableForLocation);
 router.post("/", addLocation);
 router.delete("/:id", deleteLocation);
 

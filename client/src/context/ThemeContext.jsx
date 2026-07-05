@@ -5,44 +5,48 @@ export const ThemeContext = createContext();
 const lightTheme = {
   mode: "light",
   bg: {
-    primary: "#f8f9fa",
-    secondary: "#ffffff",
-    tertiary: "#f0f1f3",
+    primary: "#ffffff",
+    secondary: "#f5f5f5",
+    tertiary: "#f0f0f0",
+    sidebar: "#1a1a1a",
   },
   text: {
-    primary: "#0a0e27",
-    secondary: "#64748b",
-    tertiary: "#94a3b8",
+    primary: "#111111",
+    secondary: "#666666",
+    tertiary: "#999999",
+    sidebar: "#e5e5e5",
   },
   border: {
-    light: "#e2e8f0",
-    medium: "#cbd5e1",
+    light: "#e5e5e5",
+    medium: "#d0d0d0",
   },
   accent: {
-    primary: "#8b5cf6",
-    secondary: "#a78bfa",
+    primary: "#111111",
+    secondary: "#444444",
   },
 };
 
 const darkTheme = {
   mode: "dark",
   bg: {
-    primary: "#0f1419",
-    secondary: "#1a1e2e",
-    tertiary: "#242b3d",
+    primary: "#1a1a1a",
+    secondary: "#242424",
+    tertiary: "#2a2a2a",
+    sidebar: "#141414",
   },
   text: {
-    primary: "#f8fafc",
-    secondary: "#cbd5e1",
-    tertiary: "#94a3b8",
+    primary: "#f5f5f5",
+    secondary: "#aaaaaa",
+    tertiary: "#777777",
+    sidebar: "#cccccc",
   },
   border: {
-    light: "#334155",
-    medium: "#475569",
+    light: "#333333",
+    medium: "#444444",
   },
   accent: {
-    primary: "#a78bfa",
-    secondary: "#c4b5fd",
+    primary: "#ffffff",
+    secondary: "#cccccc",
   },
 };
 

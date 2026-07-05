@@ -52,19 +52,6 @@ export const globalErrorHandler = (err, req, res, next) => {
     timestamp: new Date().toISOString(),
   });
 
-  // Wrong MongoDB/Mongoose ID error
-  if (err.name === "CastError") {
-    err.statusCode = 400;
-    err.message = `Invalid ${err.path}`;
-  }
-
-  // Duplicate key error
-  if (err.code === 11000) {
-    err.statusCode = 400;
-    const key = Object.keys(err.keyValue)[0];
-    err.message = `${key} already exists`;
-  }
-
   // JWT errors
   if (err.name === "JsonWebTokenError") {
     err.statusCode = 401;
@@ -74,14 +61,6 @@ export const globalErrorHandler = (err, req, res, next) => {
   if (err.name === "TokenExpiredError") {
     err.statusCode = 401;
     err.message = "Token expired";
-  }
-
-  // Validation errors
-  if (err.name === "ValidationError") {
-    err.statusCode = 400;
-    err.message = Object.values(err.errors)
-      .map((e) => e.message)
-      .join(", ");
   }
 
   // Send response

@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { navigateRoute } from "../api/axios";
 
-const useRouteStore = create((set, get) => ({
+const useRouteStore = create((set) => ({
   result: null,
   loading: false,
   error: null,
@@ -12,7 +12,7 @@ const useRouteStore = create((set, get) => ({
       const res = await navigateRoute(from, to);
 
       set({ result: res.data, loading: false });
-    } catch (error) {
+    } catch {
       set({ error: "No route found or an error occured", loading: false });
     }
   },

@@ -3,7 +3,6 @@ import {
   getDepartmentsByFaculty,
   getDepartmentsByFacultyFilter,
   getAllDepartments,
-  getDepartmentById,
   createDepartment,
   updateDepartment,
   deleteDepartment,

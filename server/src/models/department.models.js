@@ -37,8 +37,6 @@ const getDepartmentById = async (id) => {
     WHERE d.id = $1`,
     [id],
   );
-  console.log(res);
-
   return res.rows[0];
 };
 

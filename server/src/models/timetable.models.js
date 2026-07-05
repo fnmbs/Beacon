@@ -5,8 +5,6 @@ const checkConflict = async (location_id, day, start_time, end_time) => {
     `SELECT 1 FROM timetable WHERE location_id = $1 AND day = $2 AND NOT ($3 >= end_time OR $4 <= start_time)`,
     [location_id, day, start_time, end_time],
   );
-//   console.log(res.rowCount)
-
   return res.rowCount
 };
 
@@ -28,4 +26,18 @@ const scheduleCourse = async (
   return res.rows[0];
 };
 
-export { checkConflict, scheduleCourse };
+const getTimetableByCourseIds = async (courseIds) => {
+  if (!courseIds || courseIds.length === 0) return [];
+  const res = await pool.query(
+    `SELECT t.*, c.code AS course_code, c.name AS course_name, c.credits, l.name AS location_name
+     FROM timetable t
+     JOIN courses c ON c.id = t.course_id
+     JOIN locations l ON l.id = t.location_id
+     WHERE t.course_id = ANY($1::uuid[])
+     ORDER BY t.day, t.start_time`,
+    [courseIds],
+  );
+  return res.rows;
+};
+
+export { checkConflict, scheduleCourse, getTimetableByCourseIds };

@@ -1,8 +1,7 @@
 import pool from "../config/db.js";
 import bcryptjs from "bcryptjs";
-import jwt from "jsonwebtoken";
 
-const createUser = async function (email, password, fullName) {
+const createUser = async function (email, password, fullName, role = "user") {
   const existing = await pool.query("SELECT * FROM users WHERE email = $1", [
     email,
   ]);
@@ -13,8 +12,8 @@ const createUser = async function (email, password, fullName) {
   const hashedPassword = await bcryptjs.hash(password, 10);
 
   const result = await pool.query(
-    "INSERT INTO users (email, password, full_name) VALUES ($1, $2, $3) RETURNING id, email, full_name, role, is_email_verified",
-    [email, hashedPassword, fullName],
+    "INSERT INTO users (email, password, full_name, role) VALUES ($1, $2, $3, $4) RETURNING id, email, full_name, role, is_email_verified",
+    [email, hashedPassword, fullName, role],
   );
 
   return result.rows[0];
@@ -29,7 +28,7 @@ const findUserByEmail = async function (email) {
 
 const findUserById = async function (id) {
   const result = await pool.query(
-    "SELECT id, email, full_name, role, is_email_verified, created_at FROM users WHERE id = $1",
+    "SELECT id, email, full_name, role, is_email_verified, pending_email, created_at FROM users WHERE id = $1",
     [id],
   );
   return result.rows[0] || null;
@@ -60,23 +59,24 @@ const updateRole = async function (userId, newRole) {
   return result.rows[0] || null;
 };
 
+const updateEmail = async function (userId, newEmail) {
+  const result = await pool.query(
+    "UPDATE users SET email = $1, pending_email = NULL, is_email_verified = true, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING id, email, full_name, role, is_email_verified",
+    [newEmail, userId],
+  );
+  return result.rows[0] || null;
+};
+
+const updatePendingEmail = async function (userId, pendingEmail) {
+  const result = await pool.query(
+    "UPDATE users SET pending_email = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING id, email, pending_email",
+    [pendingEmail, userId],
+  );
+  return result.rows[0] || null;
+};
+
 const verifyPassword = async function (plainPassword, hashedPassword) {
   return await bcryptjs.compare(plainPassword, hashedPassword);
-};
-
-const generateToken = function (userId, email, role) {
-  return jwt.sign(
-    { id: userId, email, role },
-    process.env.JWT_SECRET || "your-secret-key-change-this",
-    { expiresIn: "7d" },
-  );
-};
-
-const verifyToken = function (token) {
-  return jwt.verify(
-    token,
-    process.env.JWT_SECRET || "your-secret-key-change-this",
-  );
 };
 
 export {
@@ -86,7 +86,7 @@ export {
   updatePassword,
   verifyEmail,
   updateRole,
+  updateEmail,
+  updatePendingEmail,
   verifyPassword,
-  generateToken,
-  verifyToken,
 };

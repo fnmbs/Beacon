@@ -9,6 +9,10 @@ import {
   resetPassword,
   verifyEmail,
   resendVerificationEmail,
+  updateStudentElectives,
+  updateProfile,
+  verifyEmailChange,
+  resendEmailChangeCode,
 } from "../controllers/auth.controllers.js";
 import authMiddleware from "../middleware/auth.middleware.js";
 import {
@@ -23,6 +27,8 @@ const router = express.Router();
 router.post("/register", validateRegister, handleValidationErrors, register);
 router.post("/login", validateLogin, handleValidationErrors, login);
 router.get("/me", authMiddleware, getCurrentUser);
+router.patch("/me", authMiddleware, updateProfile);
+router.put("/me/electives", authMiddleware, updateStudentElectives);
 
 // Refresh token endpoint
 router.post(
@@ -56,7 +62,7 @@ router.post(
 // Email verification endpoints
 router.post(
   "/verify-email",
-  body("token").notEmpty().withMessage("Verification token is required"),
+  body("code").notEmpty().withMessage("Verification code is required"),
   handleValidationErrors,
   verifyEmail,
 );
@@ -65,6 +71,21 @@ router.post(
   "/resend-verification-email",
   authMiddleware,
   resendVerificationEmail,
+);
+
+// Email change verification
+router.post(
+  "/verify-email-change",
+  authMiddleware,
+  body("code").notEmpty().withMessage("Verification code is required"),
+  handleValidationErrors,
+  verifyEmailChange,
+);
+
+router.post(
+  "/resend-email-change-code",
+  authMiddleware,
+  resendEmailChangeCode,
 );
 
 export default router;

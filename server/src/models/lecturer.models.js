@@ -90,7 +90,7 @@ const getTimetableForLecturer = async (id, day) => {
 
   if (day) return res.rows;
 
-  const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+  const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   return DAYS.reduce((acc, d) => {
     acc[d] = res.rows.filter((row) => row.day === d);
     return acc;

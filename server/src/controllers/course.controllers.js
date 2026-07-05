@@ -1,4 +1,5 @@
 import * as Course from "../models/course.models.js";
+import * as Student from "../models/student.models.js";
 import pool from "../config/db.js";
 
 const VALID_TYPES = ["elective", "compulsory"];
@@ -15,6 +16,7 @@ const createCourses = async (req, res) => {
       facultyId,
       departmentId,
       level,
+      eligible_levels,
       credits,
       semester,
       type,
@@ -25,7 +27,6 @@ const createCourses = async (req, res) => {
       !name ||
       !facultyId ||
       !departmentId ||
-      !level ||
       !semester ||
       !type ||
       !description ||
@@ -34,10 +35,40 @@ const createCourses = async (req, res) => {
       return res.status(400).json({
         success: false,
         message:
-          "code, name, facultyId, departmentId, level, credits, semester and type are required",
+          "code, name, facultyId, departmentId, credits, semester and type are required",
       });
     }
 
+    // validate levels: allow either a single `level` or an array `eligible_levels`
+    if (eligible_levels) {
+      if (!Array.isArray(eligible_levels) || eligible_levels.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: "eligible_levels must be a non-empty array if provided",
+        });
+      }
+      for (const l of eligible_levels) {
+        if (!VALID_LEVELS.includes(Number(l))) {
+          return res.status(400).json({
+            success: false,
+            message: `Invalid level in eligible_levels. Must be one of: ${VALID_LEVELS.join(", ")}`,
+          });
+        }
+      }
+    } else {
+      if (!level) {
+        return res.status(400).json({
+          success: false,
+          message: "Either level or eligible_levels is required",
+        });
+      }
+      if (!VALID_LEVELS.includes(Number(level))) {
+        return res.status(400).json({
+          success: false,
+          message: `Invalid level. Must be one of: ${VALID_LEVELS.join(", ")}`,
+        });
+      }
+    }
     if (!VALID_TYPES.includes(type)) {
       return res.status(400).json({
         success: false,
@@ -52,12 +83,7 @@ const createCourses = async (req, res) => {
       });
     }
 
-    if (!VALID_LEVELS.includes(Number(level))) {
-      return res.status(400).json({
-        success: false,
-        message: `Invalid level. Must be one of: ${VALID_LEVELS.join(", ")}`,
-      });
-    }
+    // level validation handled above (either single level or eligible_levels array)
 
     if (!VALID_CREDITS.includes(Number(credits))) {
       return res.status(400).json({
@@ -76,7 +102,7 @@ const createCourses = async (req, res) => {
       });
     }
 
-    //create the course
+    // create the course (pass eligible_levels when provided)
     const course = await Course.createCourse(
       code,
       name,
@@ -84,6 +110,7 @@ const createCourses = async (req, res) => {
       facultyId,
       departmentId,
       level,
+      eligible_levels,
       credits,
       semester,
       type,
@@ -158,6 +185,104 @@ const getLecturersTeachingCourse = async (req, res) => {
   }
 };
 
+const getEligibleCourses = async (req, res) => {
+  try {
+    const { departmentId, level } = req.query;
+
+    if (!departmentId || !level) {
+      return res.status(400).json({
+        success: false,
+        message: "departmentId and level query params are required",
+      });
+    }
+
+    const courses = await Course.getEligibleCoursesByDeptAndLevel(
+      departmentId,
+      Number(level),
+    );
+
+    const compulsory = courses.filter((c) => c.type === "compulsory");
+    const elective = courses.filter((c) => c.type === "elective");
+
+    return res
+      .status(200)
+      .json({ success: true, data: { compulsory, elective } });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+const getUserCourses = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "userId is required",
+      });
+    }
+
+    const profile = await Student.getStudentProfileByUserId(userId);
+
+    if (!profile) {
+      return res.status(200).json({
+        success: true,
+        message: "No student profile found",
+        courses: [],
+      });
+    }
+
+    const eligible = await Course.getEligibleCoursesByDeptAndLevel(
+      profile.department_id,
+      Number(profile.level),
+    );
+    const compulsoryIds = eligible
+      .filter((c) => c.type === "compulsory")
+      .map((c) => c.id);
+
+    const courseIds = [
+      ...compulsoryIds,
+      ...(profile.chosen_elective_course_ids || []),
+    ];
+
+    if (courseIds.length === 0) {
+      return res.status(200).json({
+        success: true,
+        message: "No courses assigned",
+        courses: [],
+      });
+    }
+
+    const result = await pool.query(
+      `SELECT c.*, d.name AS department_name, f.name AS faculty_name
+       FROM courses c
+       JOIN departments d ON d.id = c.department_id
+       JOIN faculties f ON f.id = d.faculty_id
+       WHERE c.id = ANY($1)
+       ORDER BY c.name ASC`,
+      [courseIds],
+    );
+
+    await Student.assignCompulsoryCourses(userId, compulsoryIds);
+
+    return res.status(200).json({
+      success: true,
+      message: "Courses fetched successfully",
+      courses: result.rows,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
 const assignLecturers = async (req, res) => {
   try {
     const { lecturer_ids } = req.body;
@@ -215,9 +340,13 @@ const assignLecturers = async (req, res) => {
     }
 
     // bulk insert
-    const values = toAssign.map((lid) => `('${id}', '${lid}')`).join(", ");
+    const values = toAssign
+      .map((_, i) => `($${i * 2 + 1}, $${i * 2 + 2})`)
+      .join(", ");
+    const params = toAssign.flatMap((lid) => [id, lid]);
     await pool.query(
       `INSERT INTO course_lecturers (course_id, lecturer_id) VALUES ${values}`,
+      params,
     );
 
     res.status(201).json({
@@ -275,6 +404,7 @@ const updateCourse = async (req, res) => {
       faculty_id,
       department_id,
       level,
+      eligible_levels,
       credits,
       semester,
       type,
@@ -286,17 +416,15 @@ const updateCourse = async (req, res) => {
       !name ||
       !faculty_id ||
       !department_id ||
-      !level ||
       !semester ||
       !type ||
       !description ||
       !credits ||
-      !is_active
+      typeof is_active === "undefined"
     ) {
-      return res.status(400).json({
-        success: false,
-        message: "All fields are required",
-      });
+      return res
+        .status(400)
+        .json({ success: false, message: "All fields are required" });
     }
 
     if (!VALID_TYPES.includes(type)) {
@@ -313,11 +441,35 @@ const updateCourse = async (req, res) => {
       });
     }
 
-    if (!VALID_LEVELS.includes(Number(level))) {
-      return res.status(400).json({
-        success: false,
-        message: `Invalid level. Must be one of: ${VALID_LEVELS.join(", ")}`,
-      });
+    // validate levels for update
+    if (eligible_levels) {
+      if (!Array.isArray(eligible_levels) || eligible_levels.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: "eligible_levels must be a non-empty array if provided",
+        });
+      }
+      for (const l of eligible_levels) {
+        if (!VALID_LEVELS.includes(Number(l))) {
+          return res.status(400).json({
+            success: false,
+            message: `Invalid level in eligible_levels. Must be one of: ${VALID_LEVELS.join(", ")}`,
+          });
+        }
+      }
+    } else {
+      if (!level) {
+        return res.status(400).json({
+          success: false,
+          message: "Either level or eligible_levels is required",
+        });
+      }
+      if (!VALID_LEVELS.includes(Number(level))) {
+        return res.status(400).json({
+          success: false,
+          message: `Invalid level. Must be one of: ${VALID_LEVELS.join(", ")}`,
+        });
+      }
     }
 
     if (!VALID_CREDITS.includes(Number(credits))) {
@@ -483,6 +635,8 @@ export {
   createCourses,
   getCourseById,
   getLecturersTeachingCourse,
+  getEligibleCourses,
+  getUserCourses,
   assignLecturers,
   getAllCourses,
   getCoursesByDepartment,

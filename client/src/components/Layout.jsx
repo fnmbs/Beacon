@@ -1,19 +1,14 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import { authAPI } from "../api/axios";
 
 const NAV = [
   {
     to: "/",
     label: "Dashboard",
     icon: (
-      <svg
-        viewBox="0 0 16 16"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.2"
-        className="w-3.5 h-3.5"
-      >
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-4 h-4">
         <rect x="1.5" y="1.5" width="5" height="5" rx="0.5" />
         <rect x="9.5" y="1.5" width="5" height="5" rx="0.5" />
         <rect x="1.5" y="9.5" width="5" height="5" rx="0.5" />
@@ -25,13 +20,7 @@ const NAV = [
     to: "/locations",
     label: "Locations",
     icon: (
-      <svg
-        viewBox="0 0 16 16"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.2"
-        className="w-3.5 h-3.5"
-      >
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-4 h-4">
         <path d="M8 1.5C5.5 1.5 3.5 3.5 3.5 6c0 3.5 4.5 8.5 4.5 8.5s4.5-5 4.5-8.5c0-2.5-2-4.5-4.5-4.5z" />
         <circle cx="8" cy="6" r="1.5" />
       </svg>
@@ -41,13 +30,7 @@ const NAV = [
     to: "/paths",
     label: "Paths",
     icon: (
-      <svg
-        viewBox="0 0 16 16"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.2"
-        className="w-3.5 h-3.5"
-      >
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-4 h-4">
         <circle cx="3" cy="8" r="1.5" />
         <circle cx="13" cy="3" r="1.5" />
         <circle cx="13" cy="13" r="1.5" />
@@ -60,13 +43,7 @@ const NAV = [
     to: "/tester",
     label: "Navigator",
     icon: (
-      <svg
-        viewBox="0 0 16 16"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.2"
-        className="w-3.5 h-3.5"
-      >
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-4 h-4">
         <polygon points="3,1.5 13,8 3,14.5" />
       </svg>
     ),
@@ -75,13 +52,7 @@ const NAV = [
     to: "/academics",
     label: "Academics",
     icon: (
-      <svg
-        viewBox="0 0 16 16"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.2"
-        className="w-3.5 h-3.5"
-      >
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-4 h-4">
         <path d="M2 5.5h12M2.5 5.5v6c0 1 .5 1.5 1.5 1.5h10c1 0 1.5-.5 1.5-1.5v-6" />
         <path d="M4 5.5L8 2l4 3.5" />
       </svg>
@@ -101,196 +72,85 @@ export default function Layout() {
 
   return (
     <>
-      {/* Import Instrument Sans */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap');
-
-        * { box-sizing: border-box; }
-
-        .nav-link-label {
-          font-family: 'Instrument Sans', sans-serif;
-          font-size: 11px;
-          font-weight: 400;
-          letter-spacing: 0.06em;
-        }
-
-        .section-label {
-          font-family: 'Instrument Sans', sans-serif;
-          font-size: 9px;
-          font-weight: 500;
-          letter-spacing: 0.25em;
-          text-transform: uppercase;
-        }
-
-        .logo-wordmark {
-          font-family: 'Instrument Serif', serif;
-          font-size: 15px;
-          font-weight: 400;
-          letter-spacing: 0.04em;
-        }
-
-        .nav-item {
-          position: relative;
+        .sidebar-link {
           display: flex;
           align-items: center;
-          gap: 12px;
-          padding: 9px 12px;
-          transition: opacity 120ms ease;
+          gap: 10px;
+          padding: 8px 12px;
           text-decoration: none;
-          color: #000;
-          border-left: 2px solid transparent;
+          color: #999;
+          font-size: 13px;
+          font-weight: 400;
+          border-radius: 6px;
+          transition: all 0.15s ease;
         }
-
-        .nav-item:hover {
-          opacity: 0.5;
+        .sidebar-link:hover {
+          background: rgba(255,255,255,0.06);
+          color: #e5e5e5;
         }
-
-        .nav-item.active {
-          border-left: 2px solid #000;
-          opacity: 1;
+        .sidebar-link.active {
+          background: rgba(255,255,255,0.1);
+          color: #fff;
         }
-
-        .nav-item.active .nav-link-label {
+        .sidebar-label {
+          font-size: 10px;
           font-weight: 500;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: #555;
         }
       `}</style>
 
-      <div
-        className="flex h-full min-h-screen"
-        style={{ background: "#ffffff", color: "#000000" }}
-      >
+      <div className="flex h-full min-h-screen bg-[#fff] text-[#111]">
         {/* MOBILE TOP BAR */}
-        <div
-          className="md:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-5"
-          style={{
-            height: "52px",
-            background: "#ffffff",
-            borderBottom: "1px solid #000000",
-          }}
-        >
-          <button
-            onClick={() => setOpen(true)}
-            className="flex flex-col gap-1 p-1"
-            aria-label="Open menu"
-          >
-            <span
-              style={{
-                display: "block",
-                width: "18px",
-                height: "1px",
-                background: "#000",
-              }}
-            />
-            <span
-              style={{
-                display: "block",
-                width: "12px",
-                height: "1px",
-                background: "#000",
-              }}
-            />
+        <div className="md:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4" style={{ height: "48px", background: "#fff", borderBottom: "1px solid #e5e5e5" }}>
+          <button onClick={() => setOpen(true)} className="flex flex-col gap-1 p-1" aria-label="Open menu">
+            <span style={{ display: "block", width: "18px", height: "1.5px", background: "#111" }} />
+            <span style={{ display: "block", width: "12px", height: "1.5px", background: "#111" }} />
           </button>
-          <span className="logo-wordmark">MAPU</span>
+          <span style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.02em" }}>BEACON</span>
           <div style={{ width: "26px" }} />
         </div>
 
         {/* SIDEBAR */}
-        <aside
-          className={`fixed inset-y-0 left-0 flex flex-col z-50 transform transition-transform duration-200 ease-in-out
-            ${open ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
-          style={{
-            width: "200px",
-            background: "#ffffff",
-            borderRight: "1px solid #000000",
-          }}
-        >
+        <aside className={`fixed inset-y-0 left-0 flex flex-col z-50 transform transition-transform duration-200 ease-in-out ${open ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
+          style={{ width: "220px", background: "#1a1a1a" }}>
           {/* Logo */}
-          <div
-            className="flex items-center px-6"
-            style={{ height: "52px", borderBottom: "1px solid #000" }}
-          >
-            <span className="logo-wordmark">MAPU</span>
+          <div className="flex items-center px-5" style={{ height: "48px", borderBottom: "1px solid #2a2a2a" }}>
+            <span style={{ fontSize: "15px", fontWeight: 600, color: "#fff", letterSpacing: "-0.02em" }}>BEACON</span>
           </div>
 
-          {/* Section label */}
-          <div className="px-6 pt-7 pb-3">
-            <span className="section-label" style={{ opacity: 0.3 }}>
-              Menu
-            </span>
+          <div className="px-4 pt-6 pb-2">
+            <span className="sidebar-label">Navigation</span>
           </div>
 
-          {/* Nav */}
-          <nav className="flex-1 px-3 flex flex-col">
+          <nav className="flex-1 px-2 flex flex-col gap-0.5">
             {NAV.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
                 end={item.to === "/"}
                 onClick={() => setOpen(false)}
-                className={({ isActive }) =>
-                  `nav-item${isActive ? " active" : ""}`
-                }
+                className="sidebar-link"
               >
-                {({ isActive }) => (
-                  <>
-                    <span
-                      style={{
-                        opacity: isActive ? 1 : 0.35,
-                        lineHeight: 0,
-                        flexShrink: 0,
-                      }}
-                    >
-                      {item.icon}
-                    </span>
-                    <span className="nav-link-label">{item.label}</span>
-                  </>
-                )}
+                <span style={{ opacity: 0.7, lineHeight: 0, flexShrink: 0 }}>{item.icon}</span>
+                {item.label}
               </NavLink>
             ))}
           </nav>
 
           {/* Footer */}
-          <div className="px-6 py-4" style={{ borderTop: "1px solid #000" }}>
-            <span className="section-label" style={{ opacity: 0.2 }}>
-              Account
-            </span>
+          <div className="px-4 py-3" style={{ borderTop: "1px solid #2a2a2a" }}>
+            <span className="sidebar-label">Account</span>
             {user && (
-              <div style={{ marginTop: 12 }}>
-                <div
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 500,
-                    color: "#000",
-                    marginBottom: 8,
-                  }}
-                >
-                  {user.fullName}
-                </div>
-                <button
-                  onClick={handleLogout}
-                  style={{
-                    width: "100%",
-                    padding: "8px 12px",
-                    background: "transparent",
-                    border: "1px solid #e0e0e0",
-                    borderRadius: 6,
-                    fontSize: 10,
-                    fontWeight: 500,
-                    letterSpacing: "0.06em",
-                    textTransform: "uppercase",
-                    color: "#000",
-                    cursor: "pointer",
-                    transition: "all 0.2s",
-                    fontFamily: "'Instrument Sans', sans-serif",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.background = "#f5f5f5";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.background = "transparent";
-                  }}
-                >
-                  Sign Out
+              <div className="mt-3">
+                <div style={{ fontSize: 12, fontWeight: 500, color: "#ccc", marginBottom: 8 }}>{user.fullName}</div>
+                <button onClick={handleLogout} className="w-full text-left"
+                  style={{ padding: "6px 10px", fontSize: 11, color: "#777", background: "transparent", border: "1px solid #333", borderRadius: 4, cursor: "pointer", transition: "all 0.15s" }}
+                  onMouseEnter={(e) => { e.target.style.background = "rgba(255,255,255,0.05)"; e.target.style.color = "#ccc" }}
+                  onMouseLeave={(e) => { e.target.style.background = "transparent"; e.target.style.color = "#777" }}>
+                  Sign out
                 </button>
               </div>
             )}
@@ -298,63 +158,18 @@ export default function Layout() {
         </aside>
 
         {/* MOBILE OVERLAY */}
-        {open && (
-          <div
-            className="fixed inset-0 z-40 md:hidden"
-            style={{ background: "rgba(0,0,0,0.15)" }}
-            onClick={() => setOpen(false)}
-          />
-        )}
+        {open && <div className="fixed inset-0 z-40 md:hidden bg-black/20" onClick={() => setOpen(false)} />}
 
         {/* MAIN */}
-        <main
-          className="flex-1 flex flex-col min-h-screen"
-          style={{
-            marginLeft: "200px",
-            background: "#ffffff",
-            paddingTop: 0,
-          }}
-        >
-          <div className="md:hidden" style={{ height: "52px" }} />
+        <main className="flex-1 flex flex-col min-h-screen" style={{ marginLeft: "220px" }}>
+          <div className="md:hidden" style={{ height: "48px" }} />
 
           {/* Email Verification Banner */}
           {user && !user.isEmailVerified && (
-            <div
-              style={{
-                background: "#fff3cd",
-                borderBottom: "1px solid #ffc107",
-                padding: "12px 20px",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                fontSize: "12px",
-              }}
-            >
-              <span style={{ color: "#856404", fontWeight: 500 }}>
-                ⚠️ Please verify your email address. Check your inbox for a
-                verification link.
-              </span>
-              <button
-                onClick={async () => {
-                  try {
-                    await import("../api/axios").then((m) =>
-                      m.authAPI.resendVerificationEmail(),
-                    );
-                    alert("Verification email resent!");
-                  } catch (err) {
-                    alert("Failed to resend email");
-                  }
-                }}
-                style={{
-                  background: "transparent",
-                  border: "none",
-                  color: "#0c5460",
-                  cursor: "pointer",
-                  fontSize: "11px",
-                  fontWeight: 500,
-                  textDecoration: "underline",
-                }}
-              >
+            <div style={{ background: "#fafafa", borderBottom: "1px solid #e5e5e5", padding: "10px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 12 }}>
+              <span style={{ color: "#666" }}>Please verify your email address. Check your inbox for a verification link.</span>
+              <button onClick={async () => { try { await authAPI.resendVerificationEmail(); alert("Verification email resent!"); } catch { alert("Failed to resend email"); } }}
+                style={{ background: "none", border: "none", color: "#111", cursor: "pointer", fontSize: 11, fontWeight: 500, textDecoration: "underline" }}>
                 Resend
               </button>
             </div>

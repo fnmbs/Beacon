@@ -10,11 +10,13 @@ import lecturerRoutes from "./routes/lecturer.routes.js";
 import courseRoutes from "./routes/course.routes.js";
 import timetableRoutes from "./routes/timetable.routes.js";
 import authRoutes from "./routes/auth.routes.js";
+import adminAuthRoutes from "./routes/adminAuth.routes.js";
+import notesRoutes from "./routes/notes.routes.js";
 import {
   testDatabase,
   checkUsersTable,
 } from "./controllers/test.controllers.js";
-import { apiLimiter, authLimiter } from "./middleware/rateLimiter.js";
+// import { apiLimiter, authLimiter } from "./middleware/rateLimiter.js";
 import {
   requestLogger,
   globalErrorHandler,
@@ -31,30 +33,24 @@ app.use(helmet());
 
 // CORS - restrict to frontend only in production
 // allow multiple origins dynamically
-const allowedOrigins = [
-  "http://localhost:5173",
-  process.env.FRONTEND_URL,
-];
+const allowedOrigins = ["http://localhost:5173", "http://localhost:5174"];
 
-// app.use(
-//   cors({
-//     origin: function (origin, callback) {
-//       // allow requests with no origin (like Postman)
-//       if (!origin) return callback(null, true);
-//       if (allowedOrigins.indexOf(origin) === -1) {
-//         const msg = `The CORS policy for this site does not allow access from the specified Origin.`;
-//         return callback(new Error(msg), false);
-//       }
-//       return callback(null, true);
-//     },
-//     credentials: true,
-//     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-//     allowedHeaders: ["Content-Type", "Authorization"],
-//   }),
-// );
-
-// also handle preflight requests manually
-// app.options("*", cors());
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // allow requests with no origin (like Postman)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) === -1) {
+        const msg = `The CORS policy for this site does not allow access from the specified Origin.`;
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
 
 // Body parser
 app.use(express.json({ limit: "10mb" }));
@@ -64,24 +60,37 @@ app.use(express.urlencoded({ limit: "10mb", extended: true }));
 app.use(requestLogger);
 
 // Apply rate limiter to all API routes
-app.use("/api/v1/", apiLimiter);
+// app.use(
+//   "/api/v1/",
+//   apiLimiter
+// );
 
 //
 app.get("/api/v1/test/db", testDatabase);
 app.get("/api/v1/test/users-table", checkUsersTable);
 
 //
-app.use("/api/v1/auth", authLimiter, authRoutes);
+app.use(
+  "/api/v1/auth",
+  // authLimiter,
+  authRoutes,
+);
+app.use(
+  "/api/v1/admin/auth",
+  // authLimiter,
+  adminAuthRoutes,
+);
 
 //
 app.use("/api/v1/locations", locationRoutes);
 app.use("/api/v1/paths", pathRoutes);
-app.use("/api/v1/navigations", navigationRoutes);
+app.use("/api/v1/navigation", navigationRoutes);
 app.use("/api/v1/faculties", facultyRoutes);
 app.use("/api/v1/departments", departmentRoutes);
 app.use("/api/v1/lecturers", lecturerRoutes);
 app.use("/api/v1/courses", courseRoutes);
 app.use("/api/v1/timetable", timetableRoutes);
+app.use("/api/v1/notes", notesRoutes);
 
 // ==================== ERROR HANDLING ====================
 // 404 handler

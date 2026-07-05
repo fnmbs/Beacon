@@ -1,89 +1,23 @@
 export default function FacultyCard({ faculty, onClick }) {
   return (
-    <div
-      onClick={onClick}
-      className="p-5 rounded-lg cursor-pointer transition-all hover:shadow-lg hover:scale-[1.02] group"
-      style={{
-        background: "#16181d",
-        border: "1px solid #1f2230",
-        color: "#f3f4f6",
-      }}
-    >
-      {/* Header with Code and Icon */}
+    <div onClick={onClick} className="p-4 rounded-lg cursor-pointer transition-all hover:shadow-sm"
+      style={{ background: "#fff", border: "1px solid #e5e5e5", color: "#111" }}>
       <div className="flex items-start justify-between mb-3">
-        <div
-          className="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[10px] font-mono font-semibold w-fit"
-          style={{ background: "rgba(96, 165, 250, 0.1)", color: "#60a5fa" }}
-        >
-          <span className="text-xs">🏢</span>
-          {faculty.code}
+        <div style={{ fontSize: 11, fontWeight: 500, color: "#999" }}>{faculty.code}</div>
+      </div>
+      <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>{faculty.name}</h3>
+      {faculty.email && <p style={{ fontSize: 12, color: "#888", marginBottom: 12 }}>{faculty.email}</p>}
+      <div style={{ borderTop: "1px solid #eee", paddingTop: 10, display: "flex", gap: 12 }}>
+        <div>
+          <div style={{ fontSize: 10, letterSpacing: "0.06em", textTransform: "uppercase", color: "#bbb" }}>Building</div>
+          <div style={{ fontSize: 12, marginTop: 2, color: faculty.building_name ? "#111" : "#bbb" }}>{faculty.building_name || "—"}</div>
+        </div>
+        <div>
+          <div style={{ fontSize: 10, letterSpacing: "0.06em", textTransform: "uppercase", color: "#bbb" }}>Est.</div>
+          <div style={{ fontSize: 12, marginTop: 2, color: faculty.established_year ? "#111" : "#bbb" }}>{faculty.established_year || "—"}</div>
         </div>
       </div>
-
-      {/* Faculty Name */}
-      <h3 className="font-semibold text-[14px] mb-2 line-clamp-2">
-        {faculty.name}
-      </h3>
-
-      {/* Email with Icon */}
-      <div
-        className="flex items-center gap-2 text-[11px] mb-4"
-        style={{ color: "#9ca3af" }}
-      >
-        <span className="text-xs opacity-60">✉️</span>
-        <span className="truncate">{faculty.email}</span>
-      </div>
-
-      {/* Stats Row */}
-      <div
-        className="flex gap-3 pt-4"
-        style={{ borderTop: "1px solid #1f2230" }}
-      >
-        {/* Building Info */}
-        <div className="flex-1 min-w-0">
-          <div
-            className="text-[9px] uppercase tracking-wider"
-            style={{ color: "#4b5563" }}
-          >
-            Building
-          </div>
-          <div className="text-[12px] mt-1.5 truncate font-medium">
-            {faculty.building_name ? (
-              <span style={{ color: "#10b981" }}>
-                🏛️ {faculty.building_name}
-              </span>
-            ) : (
-              <span style={{ color: "#6b7280" }}>—</span>
-            )}
-          </div>
-        </div>
-        {/* Established Year */}
-        <div className="flex-1 min-w-0">
-          <div
-            className="text-[9px] uppercase tracking-wider"
-            style={{ color: "#4b5563" }}
-          >
-            Established
-          </div>
-          <div className="text-[12px] mt-1.5 truncate font-medium">
-            {faculty.established_year ? (
-              <span style={{ color: "#f59e0b" }}>
-                📅 {faculty.established_year}
-              </span>
-            ) : (
-              <span style={{ color: "#6b7280" }}>—</span>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Click indicator */}
-      <div
-        className="mt-3 text-[10px] opacity-0 group-hover:opacity-100 transition-opacity text-right"
-        style={{ color: "#4b5563" }}
-      >
-        Click to view details →
-      </div>
+      <div style={{ marginTop: 8, fontSize: 11, color: "#ccc", textAlign: "right", opacity: 0 }} className="group-hover:opacity-100 transition-opacity">Click to view details →</div>
     </div>
   );
 }

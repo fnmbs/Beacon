@@ -9,6 +9,9 @@ import Paths from "./pages/Paths";
 import NavigationTester from "./pages/NavigationTester";
 import Academic from "./pages/Academic";
 import Login from "./pages/Login";
+import AdminLogin from "./pages/AdminLogin";
+import Register from "./pages/Register";
+import VerifyEmail from "./pages/VerifyEmail";
 import "leaflet/dist/leaflet.css";
 
 export default function App() {
@@ -19,6 +22,9 @@ export default function App() {
           <Routes>
             {/* Auth routes */}
             <Route path="/login" element={<Login />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/verify-email" element={<VerifyEmail />} />
 
             {/* Protected routes */}
             <Route

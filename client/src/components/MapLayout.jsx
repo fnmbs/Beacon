@@ -1,12 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  Popup,
-  Polyline,
-  useMap,
-} from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import useLocationStore from "../store/useLocationStore";
@@ -20,14 +13,7 @@ L.Icon.Default.mergeOptions({
 
 const CAMPUS = [6.927598384979245, 3.87129667870627];
 
-const TYPE_LABELS = {
-  gate: "G",
-  building: "B",
-  junction: "J",
-  parking: "P",
-  field: "F",
-  other: "·",
-};
+const TYPE_LABELS = { gate: "G", building: "B", junction: "J", parking: "P", field: "F", other: "·" };
 
 const TILES = {
   map: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
@@ -90,25 +76,13 @@ function FitRoute({ positions }) {
 
 function NodePopup({ loc }) {
   return (
-    <div style={{
-      background: "#fff",
-      border: "1px solid #000",
-      minWidth: 160,
-      fontFamily: "'DM Sans', sans-serif",
-      overflow: "hidden",
-      borderRadius: 8,
-    }}>
-      <div style={{ padding: "10px 12px", borderBottom: "1px solid #f0f0f0" }}>
-        <div style={{ fontSize: 13, fontWeight: 500, color: "#000", marginBottom: 3 }}>{loc.name}</div>
-        <span style={{
-          fontSize: 9, fontWeight: 500, letterSpacing: "0.12em",
-          textTransform: "uppercase", color: "#999",
-        }}>
-          {loc.type || "other"}
-        </span>
+    <div style={{ background: "#fff", border: "1px solid #e5e5e5", minWidth: 160, overflow: "hidden", borderRadius: 6 }}>
+      <div style={{ padding: "8px 12px", borderBottom: "1px solid #f0f0f0" }}>
+        <div style={{ fontSize: 13, fontWeight: 500, color: "#111", marginBottom: 2 }}>{loc.name}</div>
+        <span style={{ fontSize: 9, fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase", color: "#999" }}>{loc.type || "other"}</span>
       </div>
-      <div style={{ padding: "6px 12px" }}>
-        <span style={{ fontSize: 9, color: "#bbb" }}>click to select</span>
+      <div style={{ padding: "4px 12px" }}>
+        <span style={{ fontSize: 9, color: "#ccc" }}>click to select</span>
       </div>
     </div>
   );
@@ -123,7 +97,7 @@ export default function MapLayout({
   tileStyle: externalTileStyle,
 }) {
   const { locations, loading, fetchLocations, totalLocations } = useLocationStore();
-  const [tileStyle, setTileStyle] = useState("map");
+  const [tileStyle] = useState("map");
 
   const activeTile = externalTileStyle || tileStyle;
 
@@ -146,8 +120,6 @@ export default function MapLayout({
   const mapEl = (
     <div style={{ position: "relative", width: "100%", height: "100%" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap');
-
         .custom-popup .leaflet-popup-content-wrapper {
           background: transparent !important;
           box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
@@ -157,8 +129,8 @@ export default function MapLayout({
         .custom-popup .leaflet-popup-content { margin: 0 !important; }
         .custom-popup .leaflet-popup-tip-container { display: none !important; }
         .leaflet-popup-close-button {
-          color: #000 !important; top: 8px !important; right: 8px !important;
-          font-size: 14px !important; opacity: 0.35;
+          color: #999 !important; top: 8px !important; right: 8px !important;
+          font-size: 14px !important; opacity: 0.6;
         }
         .leaflet-control-zoom {
           display: none !important;
@@ -174,9 +146,8 @@ export default function MapLayout({
         <div style={{
           position: "absolute", top: 16, left: "50%",
           transform: "translateX(-50%)", zIndex: 1000,
-          background: "#fff", border: "1px solid #000",
-          padding: "6px 14px", fontFamily: "'DM Sans', sans-serif",
-          fontSize: 11, letterSpacing: "0.06em", borderRadius: 6,
+          background: "#fff", border: "1px solid #e5e5e5",
+          padding: "6px 14px", fontSize: 11, borderRadius: 6,
         }}>
           Loading…
         </div>
@@ -294,11 +265,10 @@ export default function MapLayout({
     <div style={{ display: "flex", flexDirection: "column", height: "100vh", background: "#fff" }}>
       <header style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "0 28px", height: 50, flexShrink: 0,
-        borderBottom: "1px solid #e8e8e8",
-        fontFamily: "'DM Sans', sans-serif",
+        padding: "0 24px", height: 48, flexShrink: 0,
+        borderBottom: "1px solid #e5e5e5",
       }}>
-        <span style={{ fontSize: 15, fontWeight: 500, color: "#000" }}>Campus Map</span>
+        <span style={{ fontSize: 14, fontWeight: 500, color: "#111" }}>Campus Map</span>
         <span style={{ fontSize: 10, color: "#bbb", letterSpacing: "0.08em" }}>
           {totalLocations} nodes
         </span>

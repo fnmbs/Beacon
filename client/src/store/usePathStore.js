@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { getPaths } from "../api/axios";
 
-const usePathStore = create((set, get) => ({
+const usePathStore = create((set) => ({
   paths: [],
   totalPaths: 0,
   totalPages: 0,

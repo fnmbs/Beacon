@@ -191,8 +191,6 @@ const getDepartmentsInFaculty = async (req, res) => {
   try {
     const { facultyId } = req.params;
 
-    console.log("facultyId:", facultyId);
-
     //check if faculty exists
     const ifFacultyExists = await Faculty.facultyExists(facultyId);
 
@@ -224,7 +222,7 @@ const getAllLecturers = async (req, res) => {
     const { facultyId } = req.params;
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-    const offset = (page - 1) * 10;
+    const offset = (page - 1) * limit;
 
     if (!facultyId) {
       return res.status(404).json({

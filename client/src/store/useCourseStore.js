@@ -10,7 +10,7 @@ import {
   getLecturersTeachingCourse,
 } from "../api/axios";
 
-const useCourseStore = create((set, get) => ({
+const useCourseStore = create((set) => ({
   courses: [],
   lecturers: [],
   totalCourses: 0,
@@ -70,7 +70,8 @@ const useCourseStore = create((set, get) => ({
         description: data.description,
         facultyId: data.facultyId,
         departmentId: data.departmentId,
-        level: Number(data.level),
+        // prefer eligibleLevels array if provided, otherwise fall back to single level
+        eligible_levels: data.eligibleLevels && data.eligibleLevels.length > 0 ? data.eligibleLevels.map(Number) : [Number(data.level)],
         credits: Number(data.credits),
         semester: data.semester,
         type: data.type,
@@ -90,7 +91,12 @@ const useCourseStore = create((set, get) => ({
 
   updateCourse: async (id, data) => {
     try {
-      const res = await updateCourse(id, data);
+      // ensure eligible_levels is passed when present
+      const payload = {
+        ...data,
+      };
+      if (data.eligibleLevels) payload.eligible_levels = data.eligibleLevels.map(Number);
+      const res = await updateCourse(id, payload);
       console.log(res.data);
       set((state) => ({
         courses: state.courses.map((c) => (c.id === id ? res.data.data : c)),

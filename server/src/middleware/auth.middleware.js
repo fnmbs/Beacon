@@ -1,4 +1,4 @@
-import * as User from "../models/user.models.js";
+import { verifyToken } from "../utils/jwt.js";
 
 export const authMiddleware = (req, res, next) => {
   try {
@@ -11,8 +11,8 @@ export const authMiddleware = (req, res, next) => {
       });
     }
 
-    const token = authHeader.substring(7); // Remove "Bearer " prefix
-    const decoded = User.verifyToken(token);
+    const token = authHeader.substring(7);
+    const decoded = verifyToken(token);
 
     req.user = decoded;
     next();

@@ -1,8 +1,10 @@
 import * as Course from "../models/course.models.js";
 import * as Location from "../models/location.models.js";
 import * as Timetable from "../models/timetable.models.js";
+import * as Student from "../models/student.models.js";
+import pool from "../config/db.js";
 
-const VALID_DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+const VALID_DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 const scheduleCourse = async (req, res) => {
   try {
@@ -62,8 +64,6 @@ const scheduleCourse = async (req, res) => {
       });
     }
 
-    console.log({ location_id, day, start_time, end_time });
-
     const conflict = await Timetable.checkConflict(
       location_id,
       day,
@@ -100,4 +100,148 @@ const scheduleCourse = async (req, res) => {
   }
 };
 
-export { scheduleCourse };
+const getUserTimetable = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "userId is required",
+      });
+    }
+
+    const profile = await Student.getStudentProfileByUserId(userId);
+
+    if (!profile) {
+      return res.status(200).json({
+        success: true,
+        message: "No student profile found",
+        data: [],
+      });
+    }
+
+    const courseIds = [
+      ...(profile.assigned_compulsory_course_ids || []),
+      ...(profile.chosen_elective_course_ids || []),
+    ];
+
+    if (courseIds.length === 0) {
+      return res.status(200).json({
+        success: true,
+        message: "No timetable entries found",
+        data: [],
+      });
+    }
+
+    const result = await pool.query(
+      `SELECT
+         t.id,
+         t.course_id,
+         t.location_id,
+         t.day,
+         t.start_time,
+         t.end_time,
+         c.code,
+         c.name AS course_name,
+         c.credits,
+         l.name AS location_name
+       FROM timetable t
+       JOIN courses c ON c.id = t.course_id
+       LEFT JOIN locations l ON l.id = t.location_id
+       WHERE t.course_id = ANY($1)
+       ORDER BY CASE t.day
+         WHEN 'Monday' THEN 1
+         WHEN 'Tuesday' THEN 2
+         WHEN 'Wednesday' THEN 3
+         WHEN 'Thursday' THEN 4
+         WHEN 'Friday' THEN 5
+         ELSE 6
+       END, t.start_time ASC`,
+      [courseIds],
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: `${result.rows.length} timetable entry(s) found`,
+      data: result.rows,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+const getTimetableByCourses = async (req, res) => {
+  try {
+    const { ids } = req.query;
+    if (!ids) {
+      return res.status(200).json({ success: true, data: [] });
+    }
+    const courseIds = Array.isArray(ids) ? ids : ids.split(",");
+    const rows = await Timetable.getTimetableByCourseIds(courseIds);
+    return res.status(200).json({ success: true, data: rows });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+const downloadTimetable = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const profile = await Student.getStudentProfileByUserId(userId);
+
+    if (!profile) {
+      return res.status(404).json({ success: false, message: "No student profile found" });
+    }
+
+    const courseIds = [
+      ...(profile.assigned_compulsory_course_ids || []),
+      ...(profile.chosen_elective_course_ids || []),
+    ];
+
+    if (courseIds.length === 0) {
+      return res.status(404).json({ success: false, message: "No courses enrolled" });
+    }
+
+    const result = await pool.query(
+      `SELECT
+         t.day, t.start_time, t.end_time,
+         c.code, c.name AS course_name, c.credits,
+         l.name AS location_name
+       FROM timetable t
+       JOIN courses c ON c.id = t.course_id
+       LEFT JOIN locations l ON l.id = t.location_id
+       WHERE t.course_id = ANY($1)
+       ORDER BY CASE t.day
+         WHEN 'Monday' THEN 1 WHEN 'Tuesday' THEN 2
+         WHEN 'Wednesday' THEN 3 WHEN 'Thursday' THEN 4
+         WHEN 'Friday' THEN 5 ELSE 6
+       END, t.start_time ASC`,
+      [courseIds],
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: "No timetable entries" });
+    }
+
+    let csv = "Day,Start,End,Code,Course,Credits,Location\n";
+    for (const row of result.rows) {
+      const loc = (row.location_name || "").replace(/,/g, " ");
+      csv += `${row.day},${row.start_time},${row.end_time},${row.code},"${row.course_name}",${row.credits},"${loc}"\n`;
+    }
+
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader("Content-Disposition", "attachment; filename=timetable.csv");
+    return res.send(csv);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+export { scheduleCourse, getUserTimetable, getTimetableByCourses, downloadTimetable };

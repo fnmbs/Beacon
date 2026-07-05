@@ -1,9 +1,9 @@
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
+import logger from "./logger.js";
 
 dotenv.config();
-// Configure your email service here
-// For production, use environment variables
+
 const transporter = nodemailer.createTransport({
   service: process.env.EMAIL_SERVICE || "gmail",
   auth: {
@@ -12,22 +12,17 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export const sendVerificationEmail = async (email, token) => {
-  const verificationLink = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
-
+export const sendVerificationEmail = async (email, code) => {
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: email,
     subject: "Email Verification - MAPU Campus Navigation",
     html: `
       <h2>Welcome to MAPU Campus Navigation!</h2>
-      <p>Please verify your email address by clicking the link below:</p>
-      <a href="${verificationLink}" style="background-color: #1a1a1a; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
-        Verify Email
-      </a>
-      <p>Or paste this link in your browser:</p>
-      <p>${verificationLink}</p>
-      <p>This link will expire in 24 hours.</p>
+      <p>Your email verification code is:</p>
+      <h1 style="letter-spacing: 8px; font-size: 36px; text-align: center; background: #f5f5f5; padding: 20px; border-radius: 8px; font-family: monospace;">${code}</h1>
+      <p>Enter this code in the app to verify your email address.</p>
+      <p>This code will expire in 24 hours.</p>
       <p>If you didn't create this account, please ignore this email.</p>
     `,
   };
@@ -36,13 +31,12 @@ export const sendVerificationEmail = async (email, token) => {
     await transporter.sendMail(mailOptions);
     return { success: true };
   } catch (error) {
-    console.error("Email verification error:", error);
+    logger.error({ message: "Email verification error", error: error.message });
     throw new Error("Failed to send verification email");
   }
 };
 
 export const sendPasswordResetEmail = async (email, token) => {
-  const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
 
   const mailOptions = {
     from: process.env.EMAIL_USER,
@@ -50,13 +44,12 @@ export const sendPasswordResetEmail = async (email, token) => {
     subject: "Password Reset - MAPU Campus Navigation",
     html: `
       <h2>Password Reset Request</h2>
-      <p>We received a request to reset your password. Click the link below to reset it:</p>
-      <a href="${resetLink}" style="background-color: #1a1a1a; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
-        Reset Password
-      </a>
-      <p>Or paste this link in your browser:</p>
-      <p>${resetLink}</p>
-      <p>This link will expire in 1 hour.</p>
+      <p>We received a request to reset your password. Use the code below to reset it:</p>
+      <div style="background-color: #f4f4f4; padding: 20px; text-align: center; font-size: 32px; letter-spacing: 8px; font-weight: bold; border-radius: 8px; margin: 20px 0;">
+        ${token}
+      </div>
+      <p>Enter this code in the app along with your new password.</p>
+      <p>This code will expire in 1 hour.</p>
       <p>If you didn't request a password reset, please ignore this email.</p>
     `,
   };
@@ -65,7 +58,7 @@ export const sendPasswordResetEmail = async (email, token) => {
     await transporter.sendMail(mailOptions);
     return { success: true };
   } catch (error) {
-    console.error("Password reset email error:", error);
+    logger.error({ message: "Password reset email error", error: error.message });
     throw new Error("Failed to send password reset email");
   }
 };
@@ -73,10 +66,10 @@ export const sendPasswordResetEmail = async (email, token) => {
 export const testEmailConnection = async () => {
   try {
     await transporter.verify();
-    console.log("✓ Email service connected successfully");
+    logger.info("Email service connected successfully");
     return true;
   } catch (error) {
-    console.error("✗ Email service connection failed:", error);
+    logger.error({ message: "Email service connection failed", error: error.message });
     return false;
   }
 };

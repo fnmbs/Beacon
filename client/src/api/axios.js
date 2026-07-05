@@ -1,8 +1,7 @@
 import axios from "axios";
 
-
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1",
   headers: {
     "Content-Type": "application/json",
   },
@@ -117,6 +116,15 @@ export const authAPI = {
     api.post("/auth/reset-password", { token, newPassword }),
   verifyEmail: (token) => api.post("/auth/verify-email", { token }),
   resendVerificationEmail: () => api.post("/auth/resend-verification-email"),
+};
+
+// Admin auth endpoints
+export const adminAuthAPI = {
+  register: (email, password, fullName, privileges = []) =>
+    api.post(`/admin/auth/register`, { email, password, fullName, privileges }),
+  login: (email, password) =>
+    api.post(`/admin/auth/login`, { email, password }),
+  getCurrentAdmin: () => api.get(`/admin/auth/me`),
 };
 
 // Locations

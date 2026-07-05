@@ -1,35 +1,15 @@
 export default function LecturerCard({ lecturer, onClick }) {
   return (
-    <button
-      onClick={onClick}
-      className="flex items-center gap-4 px-5 py-5 rounded-xl w-full text-left transition-transform hover:scale-[1.01] bg-white border border-gray-200 shadow-sm"
-    >
-      <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold shrink-0 bg-gray-100 text-gray-700">
+    <button onClick={onClick} className="flex items-center gap-3 px-4 py-3.5 rounded-lg w-full text-left transition-all hover:shadow-sm"
+      style={{ background: "#fff", border: "1px solid #e5e5e5" }}>
+      <div style={{ width: 36, height: 36, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 600, flexShrink: 0, background: "#f0f0f0", color: "#666" }}>
         {lecturer.name?.charAt(0).toUpperCase()}
       </div>
-
-      <div className="flex flex-col gap-0.5 flex-1">
-        <span className="text-[13px] font-medium truncate text-black">
-          {lecturer.name}
-        </span>
-        <span className="text-[11px] truncate text-gray-500">
-          {lecturer.department_name ?? "No department"}
-        </span>
+      <div className="flex-1 min-w-0">
+        <div style={{ fontSize: 13, fontWeight: 500, color: "#111" }} className="truncate">{lecturer.name}</div>
+        <div style={{ fontSize: 11, color: "#888" }} className="truncate">{lecturer.department_name ?? "No department"}</div>
       </div>
-
-      <span className="text-[11px] truncate text-gray-400">
-        {lecturer.email}
-      </span>
-
-      <svg
-        viewBox="0 0 12 12"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        className="w-3 h-3 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-gray-400"
-      >
-        <path d="M4 2l4 4-4 4" />
-      </svg>
+      <span style={{ fontSize: 11, color: "#bbb" }} className="truncate">{lecturer.email}</span>
     </button>
   );
 }

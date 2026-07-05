@@ -1,4 +1,3 @@
-import e from "cors";
 import pool from "../config/db.js";
 
 export const getAllLocations = async (page, limit) => {
@@ -115,7 +114,7 @@ export const getTimetableForLocation = async (id, day) => {
 
   if (day) return res.rows;
 
-  const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+  const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   return DAYS.reduce((acc, d) => {
     acc[d] = res.rows.filter((row) => row.day === d);
     return acc;

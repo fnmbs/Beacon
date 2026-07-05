@@ -18,249 +18,71 @@ export default function Register() {
     e.preventDefault();
     setError("");
     setLoading(true);
-
     try {
-      if (!fullName || !email || !password || !confirmPassword) {
-        setError("All fields are required");
-        setLoading(false);
-        return;
-      }
-
-      if (password !== confirmPassword) {
-        setError("Passwords do not match");
-        setLoading(false);
-        return;
-      }
-
-      if (password.length < 6) {
-        setError("Password must be at least 6 characters");
-        setLoading(false);
-        return;
-      }
-
+      if (!fullName || !email || !password || !confirmPassword) { setError("All fields are required"); setLoading(false); return; }
+      if (password !== confirmPassword) { setError("Passwords do not match"); setLoading(false); return; }
+      if (password.length < 6) { setError("Password must be at least 6 characters"); setLoading(false); return; }
       const response = await authAPI.register(email, password, fullName);
       const { data } = response.data;
-
       register(data.user, data.token, data.refreshToken);
       navigate("/");
     } catch (err) {
-      setError(
-        err.response?.data?.message || "Registration failed. Please try again.",
-      );
-    } finally {
-      setLoading(false);
-    }
+      setError(err.response?.data?.message || "Registration failed. Please try again.");
+    } finally { setLoading(false); }
   };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "#ffffff",
-        fontFamily: "'Instrument Sans', sans-serif",
-      }}
-    >
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap');
-
-        * { box-sizing: border-box; }
-
-        .register-container {
-          width: 100%;
-          max-width: 380px;
-          padding: 0 20px;
-        }
-
-        .register-header {
-          text-align: center;
-          margin-bottom: 40px;
-        }
-
-        .register-logo {
-          font-family: 'Instrument Serif', serif;
-          font-size: 24px;
-          font-weight: 400;
-          letter-spacing: 0.04em;
-          color: #000;
-          margin-bottom: 8px;
-        }
-
-        .register-subtitle {
-          font-size: 12px;
-          color: #999;
-          letter-spacing: 0.06em;
-          text-transform: uppercase;
-          font-weight: 400;
-        }
-
-        .form-group {
-          margin-bottom: 20px;
-        }
-
-        .form-label {
-          display: block;
-          font-size: 11px;
-          font-weight: 500;
-          letter-spacing: 0.06em;
-          text-transform: uppercase;
-          color: #000;
-          margin-bottom: 8px;
-        }
-
-        .form-input {
-          width: 100%;
-          padding: 12px 14px;
-          border: 1px solid #e0e0e0;
-          border-radius: 8px;
-          font-family: 'Instrument Sans', sans-serif;
-          font-size: 14px;
-          color: #000;
-          transition: all 0.2s;
-          box-sizing: border-box;
-        }
-
-        .form-input:focus {
-          outline: none;
-          border-color: #000;
-          box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
-        }
-
-        .form-input::placeholder {
-          color: #bbb;
-        }
-
-        .error-message {
-          display: block;
-          font-size: 12px;
-          color: #d32f2f;
-          margin-top: 6px;
-          font-weight: 400;
-        }
-
-        .submit-btn {
-          width: 100%;
-          padding: 12px;
-          background: #000;
-          color: #fff;
-          border: none;
-          border-radius: 8px;
-          font-family: 'Instrument Sans', sans-serif;
-          font-size: 12px;
-          font-weight: 500;
-          letter-spacing: 0.06em;
-          text-transform: uppercase;
-          cursor: pointer;
-          transition: all 0.2s;
-          margin-top: 8px;
-        }
-
-        .submit-btn:hover:not(:disabled) {
-          background: #333;
-        }
-
-        .submit-btn:active:not(:disabled) {
-          transform: scale(0.98);
-        }
-
-        .submit-btn:disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
-        }
-
-        .auth-link {
-          text-align: center;
-          margin-top: 24px;
-          font-size: 12px;
-          color: #666;
-        }
-
-        .auth-link a {
-          color: #000;
-          text-decoration: none;
-          font-weight: 500;
-          transition: opacity 0.2s;
-        }
-
-        .auth-link a:hover {
-          opacity: 0.6;
-        }
-
-        .divider {
-          height: 1px;
-          background: #e0e0e0;
-          margin: 24px 0;
-        }
-      `}</style>
-
-      <div className="register-container">
-        <div className="register-header">
-          <div className="register-logo">MAPU</div>
-          <div className="register-subtitle">Create Account</div>
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#fff" }}>
+      <div style={{ width: "100%", maxWidth: "340px", padding: "0 20px" }}>
+        <div style={{ textAlign: "center", marginBottom: 40 }}>
+          <div style={{ fontSize: 22, fontWeight: 600, color: "#111", letterSpacing: "-0.03em", marginBottom: 6 }}>BEACON</div>
+          <div style={{ fontSize: 12, color: "#999", letterSpacing: "0.06em", textTransform: "uppercase" }}>Create Account</div>
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label className="form-label">Full Name</label>
-            <input
-              type="text"
-              className="form-input"
-              placeholder="John Doe"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              disabled={loading}
-            />
+          <div style={{ marginBottom: 18 }}>
+            <label style={{ display: "block", fontSize: 11, fontWeight: 500, color: "#111", marginBottom: 6 }}>Full Name</label>
+            <input type="text" placeholder="John Doe" value={fullName} onChange={(e) => setFullName(e.target.value)} disabled={loading}
+              style={{ width: "100%", padding: "10px 12px", border: "1px solid #e0e0e0", borderRadius: 6, fontSize: 13, color: "#111", outline: "none" }}
+              onFocus={(e) => e.target.style.borderColor = "#111"}
+              onBlur={(e) => e.target.style.borderColor = "#e0e0e0"} />
+          </div>
+          <div style={{ marginBottom: 18 }}>
+            <label style={{ display: "block", fontSize: 11, fontWeight: 500, color: "#111", marginBottom: 6 }}>Email</label>
+            <input type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} disabled={loading}
+              style={{ width: "100%", padding: "10px 12px", border: "1px solid #e0e0e0", borderRadius: 6, fontSize: 13, color: "#111", outline: "none" }}
+              onFocus={(e) => e.target.style.borderColor = "#111"}
+              onBlur={(e) => e.target.style.borderColor = "#e0e0e0"} />
+          </div>
+          <div style={{ marginBottom: 18 }}>
+            <label style={{ display: "block", fontSize: 11, fontWeight: 500, color: "#111", marginBottom: 6 }}>Password</label>
+            <input type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} disabled={loading}
+              style={{ width: "100%", padding: "10px 12px", border: "1px solid #e0e0e0", borderRadius: 6, fontSize: 13, color: "#111", outline: "none" }}
+              onFocus={(e) => e.target.style.borderColor = "#111"}
+              onBlur={(e) => e.target.style.borderColor = "#e0e0e0"} />
+          </div>
+          <div style={{ marginBottom: 18 }}>
+            <label style={{ display: "block", fontSize: 11, fontWeight: 500, color: "#111", marginBottom: 6 }}>Confirm Password</label>
+            <input type="password" placeholder="••••••••" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} disabled={loading}
+              style={{ width: "100%", padding: "10px 12px", border: "1px solid #e0e0e0", borderRadius: 6, fontSize: 13, color: "#111", outline: "none" }}
+              onFocus={(e) => e.target.style.borderColor = "#111"}
+              onBlur={(e) => e.target.style.borderColor = "#e0e0e0"} />
           </div>
 
-          <div className="form-group">
-            <label className="form-label">Email Address</label>
-            <input
-              type="email"
-              className="form-input"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={loading}
-            />
-          </div>
+          {error && <span style={{ display: "block", fontSize: 12, color: "#d32f2f", marginBottom: 12 }}>{error}</span>}
 
-          <div className="form-group">
-            <label className="form-label">Password</label>
-            <input
-              type="password"
-              className="form-input"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={loading}
-            />
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">Confirm Password</label>
-            <input
-              type="password"
-              className="form-input"
-              placeholder="••••••••"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              disabled={loading}
-            />
-          </div>
-
-          {error && <span className="error-message">{error}</span>}
-
-          <button type="submit" className="submit-btn" disabled={loading}>
-            {loading ? "Creating account…" : "Create Account"}
+          <button type="submit" disabled={loading}
+            style={{ width: "100%", padding: "10px", background: "#111", color: "#fff", border: "none", borderRadius: 6, fontSize: 12, fontWeight: 500, cursor: "pointer", transition: "opacity 0.15s", opacity: loading ? 0.6 : 1 }}
+            onMouseEnter={(e) => { if (!loading) e.target.style.opacity = "0.8" }}
+            onMouseLeave={(e) => { if (!loading) e.target.style.opacity = "1" }}>
+            {loading ? "Creating account…" : "Create account"}
           </button>
         </form>
 
-        <div className="divider" />
+        <div style={{ height: 1, background: "#eee", margin: "24px 0" }} />
 
-        <div className="auth-link">
-          Already have an account? <Link to="/login">Sign in</Link>
+        <div style={{ textAlign: "center", fontSize: 12, color: "#888" }}>
+          Already have an account? <Link to="/login" style={{ color: "#111", fontWeight: 500, textDecoration: "none" }}>Sign in</Link>
         </div>
       </div>
     </div>

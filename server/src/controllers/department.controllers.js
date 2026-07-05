@@ -1,3 +1,4 @@
+import logger from "../utils/logger.js";
 import * as Department from "../models/department.models.js";
 import * as Faculty from "../models/faculty.models.js";
 import * as Course from "../models/course.models.js";
@@ -115,7 +116,7 @@ const getDepartmentById = async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({
-      success: true,
+      success: false,
       message: "Internal Server Error",
     });
   }
@@ -137,64 +138,65 @@ const getAllDepartments = async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({
-      success: true,
+      success: false,
       message: "Internal Server Error",
     });
   }
 };
 
 const updateDepartment = async (req, res) => {
-  const { id } = req.params;
+  try {
+    const { id } = req.params;
 
-  const { name, code, email, buildingId, facultyId, headId } = req.body;
+    const { name, code, email, buildingId, facultyId, headId } = req.body;
 
-  if (!name || !code || !email || !facultyId) {
-    return res.status(400).json({
+    if (!name || !code || !email || !facultyId) {
+      return res.status(400).json({
+        success: false,
+        message: "Input the required field",
+      });
+    }
+
+    const existingDepartment = await Department.getDepartmentById(id);
+
+    if (!existingDepartment) {
+      return res.status(409).json({
+        success: false,
+        message: "Department doesn't exist",
+      });
+    }
+
+    const ifFacultyExists = await Faculty.getFacultyById(facultyId);
+
+    if (!ifFacultyExists) {
+      return res.status(400).json({
+        success: false,
+        message: "Faculty doesn't exist",
+      });
+    }
+
+    const updatedDepartment = await Department.updateDepartment(
+      id,
+      name,
+      code,
+      email,
+      buildingId,
+      facultyId,
+      headId,
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Department updated successfully",
+      data: updatedDepartment,
+    });
+  } catch (error) {
+    logger.error({ message: "Error updating department", error: error.message });
+    return res.status(500).json({
       success: false,
-      message: "Input the required field",
+      message: "Internal Server Error",
     });
   }
-
-  const ifDepartmentExists = await Department.ifDepartmentExists(
-    name,
-    code,
-    email,
-  );
-
-  //if department doesn't exists, return
-  if (!ifDepartmentExists) {
-    return res.status(409).json({
-      success: false,
-      message: "Department doesn't exist",
-    });
-  }
-
-  const ifFacultyExists = await Faculty.getFacultyById(facultyId);
-
-  if (!ifFacultyExists) {
-    return res.status(400).json({
-      success: false,
-      message: "Faculty doesn't exist",
-    });
-  }
-
-  //if department and faculty exist, update
-
-  const updatedDepartment = await Department.updateDepartment(
-    id,
-    name,
-    code,
-    email,
-    buildingId,
-    facultyId,
-    headId,
-  );
-
-  return res.status(200).json({
-    success: true,
-    message: "Department updated successfully",
-    data: updatedDepartment,
-  });
 };
 
 const getLecturers = async (req, res) => {

@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { getLocations, searchLocations } from "../api/axios";
 
-const useLocationStore = create((set, get) => ({
+const useLocationStore = create((set) => ({
   locations: [],
   totalLocations: 0,
   loading: false,

@@ -10,11 +10,15 @@ import {
   getAllCourses,
   getCoursesByDepartment,
   searchCourses,
+  getEligibleCourses,
+  getUserCourses,
 } from "../controllers/course.controllers.js";
 
 const router = express.Router();
 
 router.get("/", getAllCourses);
+router.get("/eligible", getEligibleCourses);
+router.get("/getUserCourses/:userId", getUserCourses);
 router.post("/", createCourses);
 router.get("/search", searchCourses);
 router.get("/department/:departmentId", getCoursesByDepartment);

@@ -32,7 +32,6 @@ export const getLocations = async (req, res) => {
 export const searchLocationsByName = async (req, res) => {
   try {
     const { name } = req.query;
-    console.log(name);
 
     if (!name) {
       return res.status(400).json({ message: "Name query param is required" });
@@ -135,10 +134,11 @@ export const getTimetableForLocation = async (req, res) => {
     }
 
     const timetable = await Location.getTimetableForLocation(id, day);
+    const entryCount = day ? timetable.length : Object.values(timetable).flat().length;
 
     return res.status(200).json({
       success: true,
-      message: `${timetable.length} timetable entry(s) found`,
+      message: `${entryCount} timetable entry(s) found`,
       data: timetable,
     });
   } catch (err) {

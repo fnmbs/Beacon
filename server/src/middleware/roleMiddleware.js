@@ -1,5 +1,5 @@
 import { AppError } from "./errorHandler.js";
-import { logger } from "./logger.js";
+import logger from "./logger.js";
 
 // Define role hierarchy
 const roleHierarchy = {

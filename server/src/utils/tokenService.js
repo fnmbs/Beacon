@@ -1,6 +1,6 @@
 import pool from "../config/db.js";
 import crypto from "crypto";
-import jwt from "jsonwebtoken";
+import logger from "./logger.js";
 
 // Generate a secure random token
 export const generateSecureToken = () => {
@@ -19,7 +19,7 @@ export const createRefreshToken = async (userId) => {
     );
     return token;
   } catch (error) {
-    console.error("Error creating refresh token:", error);
+    logger.error({ message: "Error creating refresh token", error: error.message });
     throw new Error("Failed to create refresh token");
   }
 };
@@ -38,7 +38,7 @@ export const verifyRefreshToken = async (token) => {
 
     return result.rows[0].user_id;
   } catch (error) {
-    console.error("Error verifying refresh token:", error);
+    logger.error({ message: "Error verifying refresh token", error: error.message });
     throw new Error("Refresh token verification failed");
   }
 };
@@ -48,7 +48,7 @@ export const revokeRefreshToken = async (token) => {
   try {
     await pool.query("DELETE FROM refresh_tokens WHERE token = $1", [token]);
   } catch (error) {
-    console.error("Error revoking refresh token:", error);
+    logger.error({ message: "Error revoking refresh token", error: error.message });
   }
 };
 
@@ -57,13 +57,13 @@ export const revokeAllUserRefreshTokens = async (userId) => {
   try {
     await pool.query("DELETE FROM refresh_tokens WHERE user_id = $1", [userId]);
   } catch (error) {
-    console.error("Error revoking user refresh tokens:", error);
+    logger.error({ message: "Error revoking user refresh tokens", error: error.message });
   }
 };
 
 // Create password reset token
 export const createPasswordResetToken = async (userId) => {
-  const token = generateSecureToken();
+  const token = String(Math.floor(100000 + Math.random() * 900000)); // 6-digit OTP
   const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
   try {
@@ -79,7 +79,7 @@ export const createPasswordResetToken = async (userId) => {
     );
     return token;
   } catch (error) {
-    console.error("Error creating password reset token:", error);
+    logger.error({ message: "Error creating password reset token", error: error.message });
     throw new Error("Failed to create password reset token");
   }
 };
@@ -98,7 +98,7 @@ export const verifyPasswordResetToken = async (token) => {
 
     return result.rows[0].user_id;
   } catch (error) {
-    console.error("Error verifying password reset token:", error);
+    logger.error({ message: "Error verifying password reset token", error: error.message });
     throw new Error("Password reset token verification failed");
   }
 };
@@ -110,7 +110,7 @@ export const revokePasswordResetToken = async (token) => {
       token,
     ]);
   } catch (error) {
-    console.error("Error revoking password reset token:", error);
+    logger.error({ message: "Error revoking password reset token", error: error.message });
   }
 };
 
@@ -133,7 +133,7 @@ export const createEmailVerificationToken = async (userId) => {
     );
     return token;
   } catch (error) {
-    console.error("Error creating email verification token:", error);
+    logger.error({ message: "Error creating email verification token", error: error.message });
     throw new Error("Failed to create email verification token");
   }
 };
@@ -152,7 +152,7 @@ export const verifyEmailVerificationToken = async (token) => {
 
     return result.rows[0].user_id;
   } catch (error) {
-    console.error("Error verifying email verification token:", error);
+    logger.error({ message: "Error verifying email verification token", error: error.message });
     throw new Error("Email verification token verification failed");
   }
 };
@@ -164,6 +164,87 @@ export const revokeEmailVerificationToken = async (token) => {
       token,
     ]);
   } catch (error) {
-    console.error("Error revoking email verification token:", error);
+    logger.error({ message: "Error revoking email verification token", error: error.message });
+  }
+};
+
+// Generate a 6-digit verification code
+export const generateVerificationCode = () => {
+  return String(Math.floor(100000 + Math.random() * 900000));
+};
+
+// Create email change verification code with pending email
+export const createEmailChangeCode = async (userId, pendingEmail) => {
+  const code = generateVerificationCode();
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+  try {
+    await pool.query(
+      "DELETE FROM email_verification_tokens WHERE user_id = $1 AND type = 'email_change'",
+      [userId],
+    );
+    await pool.query(
+      "INSERT INTO email_verification_tokens (user_id, token, expires_at, type, pending_email) VALUES ($1, $2, $3, 'email_change', $4)",
+      [userId, code, expiresAt, pendingEmail],
+    );
+    return code;
+  } catch (error) {
+    logger.error({ message: "Error creating email change code", error: error.message });
+    throw new Error("Failed to create email change code");
+  }
+};
+
+// Verify email change code
+export const verifyEmailChangeCode = async (code) => {
+  try {
+    const result = await pool.query(
+      "SELECT user_id, pending_email FROM email_verification_tokens WHERE token = $1 AND type = 'email_change' AND expires_at > NOW()",
+      [code],
+    );
+    if (result.rows.length === 0) {
+      throw new Error("Invalid or expired verification code");
+    }
+    return { userId: result.rows[0].user_id, pendingEmail: result.rows[0].pending_email };
+  } catch (error) {
+    logger.error({ message: "Error verifying email change code", error: error.message });
+    throw new Error("Email verification failed");
+  }
+};
+
+// Create email verification code (6 digits)
+export const createEmailVerificationCode = async (userId) => {
+  const code = generateVerificationCode();
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+  try {
+    await pool.query(
+      "DELETE FROM email_verification_tokens WHERE user_id = $1",
+      [userId],
+    );
+    await pool.query(
+      "INSERT INTO email_verification_tokens (user_id, token, expires_at) VALUES ($1, $2, $3)",
+      [userId, code, expiresAt],
+    );
+    return code;
+  } catch (error) {
+    logger.error({ message: "Error creating email verification code", error: error.message });
+    throw new Error("Failed to create email verification code");
+  }
+};
+
+// Verify email verification code
+export const verifyEmailVerificationCode = async (code) => {
+  try {
+    const result = await pool.query(
+      "SELECT user_id FROM email_verification_tokens WHERE token = $1 AND expires_at > NOW()",
+      [code],
+    );
+    if (result.rows.length === 0) {
+      throw new Error("Invalid or expired verification code");
+    }
+    return result.rows[0].user_id;
+  } catch (error) {
+    logger.error({ message: "Error verifying email verification code", error: error.message });
+    throw new Error("Email verification failed");
   }
 };

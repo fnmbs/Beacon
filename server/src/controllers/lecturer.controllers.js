@@ -41,7 +41,7 @@ const getLecturerById = async (req, res) => {
     //get lecturer
     const lecturer = await Lecturer.getLecturerById(id);
 
-    if (lecturer.length === 0) {
+    if (!lecturer) {
       return res.status(400).json({
         success: false,
         message: "Lecturer doesn't exist",
@@ -164,7 +164,7 @@ const deleteLecturer = async (req, res) => {
   }
   try {
     //confirm lecturers existence
-    const lecturer = Lecturer.getLecturerById(id);
+    const lecturer = await Lecturer.getLecturerById(id);
 
     if (!lecturer) {
       return res.status(400).json({
@@ -214,7 +214,6 @@ const updateLecturer = async (req, res) => {
 
     //update
     const updatedLecturer = await Lecturer.updateLecturer(id, name, email, departmentId);
-    console.log(updatedLecturer);
 
     return res.status(200).json({
       success: true,
@@ -222,7 +221,7 @@ const updateLecturer = async (req, res) => {
       updatedLecturer,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return res.status(500).json({
       success: false,
       message: "Internal Server Error",

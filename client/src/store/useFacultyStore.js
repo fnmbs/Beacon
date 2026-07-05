@@ -1,7 +1,6 @@
 import { create } from "zustand";
 import {
   getAllFaculties,
-  getFacultyById,
   createFaculty,
   updateFaculty,
   deleteFaculty,
