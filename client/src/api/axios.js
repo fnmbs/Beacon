@@ -151,7 +151,7 @@ export const getPathById = (id) => api.get(`/paths/${id}`);
 
 // Navigation
 export const navigateRoute = (fromId, toId) =>
-  api.get(`/navigations?from=${fromId}&to=${toId}`);
+  api.get(`/navigation?from=${fromId}&to=${toId}`);
 
 export default api;
 
