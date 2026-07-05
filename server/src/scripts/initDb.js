@@ -3,6 +3,10 @@ import pool from "../config/db.js";
 
 const createTables = async () => {
   try {
+    // Enable required PostgreSQL extensions
+    await pool.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`);
+    console.log("✅ Extensions enabled");
+
     // 1️⃣ Locations table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS locations (
