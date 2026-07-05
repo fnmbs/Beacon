@@ -31,7 +31,7 @@ export default function NavigationTester() {
   const SHEET_EXPANDED = 260;
 
   return (
-    <div style={{ position: "relative", width: "100%", height: "100%", overflow: "hidden" }}>
+    <div style={{ position: "relative", width: "100%", height: "100dvh", overflow: "hidden" }}>
       <style>{`
         .nav-input { width: 100%; border: none; background: transparent; font-size: 13px; color: #111; outline: none; font-family: inherit; }
         .nav-input::placeholder { color: #bbb; }
