@@ -29,24 +29,26 @@ function StatCard({ label, value, delta }) {
 export default function Dashboard() {
   const [page] = useState(1);
   const [limit] = useState(6);
-  const [totalPaths, setTotalPaths] = useState(0);
+  const [pathData, setPathData] = useState({ totalPaths: 0, totalPathsDistance: 0 });
   const { locations, loading, error, fetchLocations, totalLocations } = useLocationStore();
 
   useEffect(() => { fetchLocations(page, limit); }, [page]);
 
   useEffect(() => {
     const fetchTotalPath = async () => {
-      try { const res = await getPaths(page, limit); setTotalPaths(res.data.totalPaths); }
+      try { const res = await getPaths(page, limit); setPathData({ totalPaths: res.data.totalPaths, totalPathsDistance: res.data.totalPathsDistance || 0 }); }
       catch (err) { console.error("Failed to fetch paths:" + err); }
     };
     fetchTotalPath();
   }, [page]);
 
+  const avgPath = pathData.totalPaths > 0 ? (pathData.totalPathsDistance / pathData.totalPaths).toFixed(0) : 0;
+
   const STATS = [
     { label: "Locations", value: totalLocations.toString(), delta: "campus nodes" },
-    { label: "Paths", value: totalPaths.toString(), delta: "connections" },
-    { label: "Distance", value: "0m", delta: "total mapped" },
-    { label: "Avg Path", value: "0m", delta: "per connection" },
+    { label: "Paths", value: pathData.totalPaths.toString(), delta: "connections" },
+    { label: "Distance", value: `${pathData.totalPathsDistance}m`, delta: "total mapped" },
+    { label: "Avg Path", value: `${avgPath}m`, delta: "per connection" },
   ];
 
   return (
