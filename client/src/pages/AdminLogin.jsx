@@ -57,7 +57,7 @@ export default function AdminLogin() {
               marginBottom: 6,
             }}
           >
-            BEACON — Admin
+            MAPU — Admin
           </div>
           <div
             style={{

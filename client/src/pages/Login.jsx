@@ -57,7 +57,7 @@ export default function Login() {
               marginBottom: 6,
             }}
           >
-            BEACON
+            MAPU
           </div>
           <div
             style={{

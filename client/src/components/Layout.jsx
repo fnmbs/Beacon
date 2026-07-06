@@ -109,7 +109,7 @@ export default function Layout() {
             <span style={{ display: "block", width: "18px", height: "1.5px", background: "#111" }} />
             <span style={{ display: "block", width: "12px", height: "1.5px", background: "#111" }} />
           </button>
-          <span style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.02em" }}>BEACON</span>
+          <span style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.02em" }}>MAPU</span>
           <div style={{ width: "26px" }} />
         </div>
 
@@ -118,7 +118,7 @@ export default function Layout() {
           style={{ width: "220px", background: "#1a1a1a" }}>
           {/* Logo */}
           <div className="flex items-center px-5" style={{ height: "48px", borderBottom: "1px solid #2a2a2a" }}>
-            <span style={{ fontSize: "15px", fontWeight: 600, color: "#fff", letterSpacing: "-0.02em" }}>BEACON</span>
+            <span style={{ fontSize: "15px", fontWeight: 600, color: "#fff", letterSpacing: "-0.02em" }}>MAPU</span>
           </div>
 
           <div className="px-4 pt-6 pb-2">

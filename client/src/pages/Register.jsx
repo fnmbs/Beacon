@@ -35,7 +35,7 @@ export default function Register() {
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#fff" }}>
       <div style={{ width: "100%", maxWidth: "340px", padding: "0 20px" }}>
         <div style={{ textAlign: "center", marginBottom: 40 }}>
-          <div style={{ fontSize: 22, fontWeight: 600, color: "#111", letterSpacing: "-0.03em", marginBottom: 6 }}>BEACON</div>
+          <div style={{ fontSize: 22, fontWeight: 600, color: "#111", letterSpacing: "-0.03em", marginBottom: 6 }}>MAPU</div>
           <div style={{ fontSize: 12, color: "#999", letterSpacing: "0.06em", textTransform: "uppercase" }}>Create Account</div>
         </div>
 
