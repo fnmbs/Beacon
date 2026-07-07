@@ -8,7 +8,18 @@ const initAuthDb = async () => {
     await pool.query("DROP TABLE IF EXISTS refresh_tokens CASCADE");
     console.log("✓ Old auth token tables removed");
 
-    // Add auth columns to users table (created by initDb.js with UUID PK)
+    // Detect users.id column type (UUID on Render, integer locally)
+    const typeRes = await pool.query(`
+      SELECT data_type, udt_name
+      FROM information_schema.columns
+      WHERE table_name = 'users' AND column_name = 'id'
+    `);
+    const idType = typeRes.rows[0]?.udt_name || 'uuid';
+    // Convert to SQL column definition
+    const userIdCol = idType === 'int4' || idType === 'integer' ? 'INTEGER' : 'UUID';
+    console.log("✓ Detected users.id type: " + userIdCol);
+
+    // Add auth columns to users table
     await pool.query(`
       ALTER TABLE users ADD COLUMN IF NOT EXISTS full_name VARCHAR(255);
     `);
@@ -20,48 +31,42 @@ const initAuthDb = async () => {
     `);
     console.log("✓ Users table augmented with auth columns");
 
-    // Create refresh_tokens table (UUID user_id references)
-    const createRefreshTokensTable = `
+    // Create refresh_tokens table
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS refresh_tokens (
         id SERIAL PRIMARY KEY,
-        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        user_id ${userIdCol} NOT NULL REFERENCES users(id) ON DELETE CASCADE,
         token VARCHAR(500) NOT NULL UNIQUE,
         expires_at TIMESTAMP NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
-    `;
-
-    await pool.query(createRefreshTokensTable);
+    `);
     console.log("✓ Refresh tokens table created successfully");
 
     // Create password_reset_tokens table
-    const createPasswordResetTokensTable = `
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS password_reset_tokens (
         id SERIAL PRIMARY KEY,
-        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        user_id ${userIdCol} NOT NULL REFERENCES users(id) ON DELETE CASCADE,
         token VARCHAR(500) NOT NULL UNIQUE,
         expires_at TIMESTAMP NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
-    `;
-
-    await pool.query(createPasswordResetTokensTable);
+    `);
     console.log("✓ Password reset tokens table created successfully");
 
     // Create email_verification_tokens table
-    const createEmailVerificationTokensTable = `
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS email_verification_tokens (
         id SERIAL PRIMARY KEY,
-        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        user_id ${userIdCol} NOT NULL REFERENCES users(id) ON DELETE CASCADE,
         token VARCHAR(500) NOT NULL UNIQUE,
         expires_at TIMESTAMP NOT NULL,
         type VARCHAR(50) DEFAULT 'verify',
         pending_email VARCHAR(255),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
-    `;
-
-    await pool.query(createEmailVerificationTokensTable);
+    `);
     console.log("✓ Email verification tokens table created successfully");
 
     // Create indexes
