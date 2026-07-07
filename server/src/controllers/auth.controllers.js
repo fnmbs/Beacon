@@ -27,26 +27,50 @@ import {
 } from "../utils/emailService.js";
 
 export const register = catchAsync(async (req, res) => {
-  const { email, password, fullName, role, level, departmentId, chosenElectives } = req.body;
+  const {
+    email,
+    password,
+    fullName,
+    role,
+    level,
+    departmentId,
+    chosenElectives,
+  } = req.body;
+  
 
   try {
+    console.log(req.body);
     const user = await User.createUser(email, password, fullName, role);
     // If registering as student, create student profile and auto-assign compulsory courses
-    if (role === 'student') {
+    if (role === "student") {
       if (!level || !departmentId) {
-        throw new AppError('level and departmentId are required for student registration', 400);
+        throw new AppError(
+          "level and departmentId are required for student registration",
+          400,
+        );
       }
-      const courses = await Course.getEligibleCoursesByDeptAndLevel(departmentId, Number(level));
-      const compulsory = courses.filter((c) => c.type === 'compulsory');
+      const courses = await Course.getEligibleCoursesByDeptAndLevel(
+        departmentId,
+        Number(level),
+      );
+      const compulsory = courses.filter((c) => c.type === "compulsory");
       const compulsoryIds = compulsory.map((c) => c.id);
-      await Student.createStudentProfile(user.id, Number(level), departmentId, chosenElectives || [], compulsoryIds);
+      await Student.createStudentProfile(
+        user.id,
+        Number(level),
+        departmentId,
+        chosenElectives || [],
+        compulsoryIds,
+      );
     }
     const token = generateToken(user.id, user.email, user.role);
     const refreshToken = await createRefreshToken(user.id);
 
     // Create email verification code (6 digits)
     const verificationCode = await createEmailVerificationCode(user.id);
-    await sendVerificationEmail(user.email, verificationCode);
+    sendVerificationEmail(user.email, verificationCode).catch(err =>
+      logger.error({ message: "Background email send failed", error: err.message })
+    );
 
     logger.info({
       message: "User registered successfully",
@@ -56,11 +80,14 @@ export const register = catchAsync(async (req, res) => {
 
     // For students, also return eligible compulsory/elective courses for their level+department
     let eligible = null;
-    if (role === 'student') {
-      const courses = await Course.getEligibleCoursesByDeptAndLevel(departmentId, Number(level));
+    if (role === "student") {
+      const courses = await Course.getEligibleCoursesByDeptAndLevel(
+        departmentId,
+        Number(level),
+      );
       eligible = {
-        compulsory: courses.filter((c) => c.type === 'compulsory'),
-        elective: courses.filter((c) => c.type === 'elective'),
+        compulsory: courses.filter((c) => c.type === "compulsory"),
+        elective: courses.filter((c) => c.type === "elective"),
       };
     }
 
@@ -171,7 +198,7 @@ export const getCurrentUser = catchAsync(async (req, res) => {
     isEmailVerified: user.is_email_verified,
   };
 
-  if (user.role === 'student') {
+  if (user.role === "student") {
     const profile = await Student.getStudentProfileByUserId(user.id);
     response.profile = profile;
   }
@@ -184,7 +211,7 @@ export const updateStudentElectives = catchAsync(async (req, res) => {
   const { chosenElectives } = req.body;
 
   if (!Array.isArray(chosenElectives)) {
-    throw new AppError('chosenElectives must be an array of course ids', 400);
+    throw new AppError("chosenElectives must be an array of course ids", 400);
   }
 
   const updated = await Student.updateChosenElectives(userId, chosenElectives);
@@ -468,7 +495,10 @@ export const updateProfile = catchAsync(async (req, res) => {
     }
 
     const userRole = req.user.role;
-    if (userRole === 'student' && (level !== undefined || matricNo !== undefined || phone !== undefined)) {
+    if (
+      userRole === "student" &&
+      (level !== undefined || matricNo !== undefined || phone !== undefined)
+    ) {
       const studentUpdates = {};
       if (level !== undefined) studentUpdates.level = level;
       if (matricNo !== undefined) studentUpdates.matricNo = matricNo;
@@ -489,7 +519,7 @@ export const updateProfile = catchAsync(async (req, res) => {
       isEmailVerified: updatedUser.is_email_verified,
     };
 
-    if (updatedUser.role === 'student') {
+    if (updatedUser.role === "student") {
       const profile = await Student.getStudentProfileByUserId(updatedUser.id);
       response.profile = profile;
     }
@@ -515,13 +545,21 @@ export const verifyEmailChange = catchAsync(async (req, res) => {
     throw new AppError("Verification code is required", 400);
   }
   try {
-    const { userId: tokenUserId, pendingEmail } = await verifyEmailChangeCode(code);
+    const { userId: tokenUserId, pendingEmail } =
+      await verifyEmailChangeCode(code);
     if (tokenUserId !== userId) {
       throw new AppError("Invalid verification code", 401);
     }
     await User.updateEmail(userId, pendingEmail);
-    await pool.query("DELETE FROM email_verification_tokens WHERE user_id = $1 AND type = 'email_change'", [userId]);
-    logger.info({ message: "Email changed successfully", userId, newEmail: pendingEmail });
+    await pool.query(
+      "DELETE FROM email_verification_tokens WHERE user_id = $1 AND type = 'email_change'",
+      [userId],
+    );
+    logger.info({
+      message: "Email changed successfully",
+      userId,
+      newEmail: pendingEmail,
+    });
     const updatedUser = await User.findUserById(userId);
     const response = {
       id: updatedUser.id,
@@ -530,7 +568,7 @@ export const verifyEmailChange = catchAsync(async (req, res) => {
       role: updatedUser.role,
       isEmailVerified: updatedUser.is_email_verified,
     };
-    if (updatedUser.role === 'student') {
+    if (updatedUser.role === "student") {
       const profile = await Student.getStudentProfileByUserId(updatedUser.id);
       response.profile = profile;
     }
@@ -555,7 +593,10 @@ export const resendEmailChangeCode = catchAsync(async (req, res) => {
     if (!user.pending_email) {
       throw new AppError("No pending email change", 400);
     }
-    const verificationCode = await createEmailChangeCode(userId, user.pending_email);
+    const verificationCode = await createEmailChangeCode(
+      userId,
+      user.pending_email,
+    );
     await sendVerificationEmail(user.pending_email, verificationCode);
     return res.status(200).json({
       success: true,
