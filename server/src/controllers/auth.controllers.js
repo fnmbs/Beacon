@@ -69,6 +69,7 @@ export const register = catchAsync(async (req, res) => {
     // Create email verification code (6 digits)
     const verificationCode = await createEmailVerificationCode(user.id);
     console.log(`[EMAIL] Verification code for ${user.email}: ${verificationCode}`);
+    console.log(`[EMAIL] EMAIL_USER set: ${!!process.env.EMAIL_USER}, EMAIL_PASSWORD set: ${!!process.env.EMAIL_PASSWORD}, EMAIL_SERVICE: ${process.env.EMAIL_SERVICE || 'gmail'}`);
     if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
       sendVerificationEmail(user.email, verificationCode).catch(err =>
         logger.error({ message: "Background email send failed", error: err.message })
