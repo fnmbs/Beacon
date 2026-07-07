@@ -68,9 +68,14 @@ export const register = catchAsync(async (req, res) => {
 
     // Create email verification code (6 digits)
     const verificationCode = await createEmailVerificationCode(user.id);
-    sendVerificationEmail(user.email, verificationCode).catch(err =>
-      logger.error({ message: "Background email send failed", error: err.message })
-    );
+    console.log(`[EMAIL] Verification code for ${user.email}: ${verificationCode}`);
+    if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
+      sendVerificationEmail(user.email, verificationCode).catch(err =>
+        logger.error({ message: "Background email send failed", error: err.message })
+      );
+    } else {
+      logger.warn({ message: "Email not configured — skipping send" });
+    }
 
     logger.info({
       message: "User registered successfully",
