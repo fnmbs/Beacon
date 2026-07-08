@@ -8,6 +8,7 @@ export default function MapEditor() {
   const [nodeModal, setNodeModal] = useState(null);
   const [pathModal, setPathModal] = useState(null);
   const [selected, setSelected] = useState([]);
+  const [tileStyle, setTileStyle] = useState("map");
 
   const { locations, fetchLocations } = useLocationStore();
   const { addPath } = usePathStore();
@@ -91,11 +92,32 @@ export default function MapEditor() {
             Click empty map to add node · Click two markers to connect
           </span>
         </div>
-        <span style={{ fontSize: 11, color: "#999" }}>{locations.length} nodes</span>
+        <div className="flex items-center gap-3">
+          <div style={{ display: "flex", border: "1px solid #e0e0e0", borderRadius: 6, overflow: "hidden" }}>
+            {[
+              { key: "map", label: "Map" },
+              { key: "satellite", label: "Satellite" },
+              { key: "dark", label: "Dark" },
+            ].map((t) => (
+              <button key={t.key} onClick={() => setTileStyle(t.key)}
+                style={{
+                  fontSize: 10, fontWeight: 500, letterSpacing: "0.06em", textTransform: "uppercase",
+                  padding: "4px 12px", border: "none", cursor: "pointer",
+                  background: tileStyle === t.key ? "#111" : "transparent",
+                  color: tileStyle === t.key ? "#fff" : "#888",
+                  transition: "all 0.12s",
+                }}>
+                {t.label}
+              </button>
+            ))}
+          </div>
+          <span style={{ fontSize: 11, color: "#999" }}>{locations.length} nodes</span>
+        </div>
       </header>
 
       <div style={{ flex: 1, minHeight: 0, position: "relative" }}>
         <MapLayout
+          tileStyle={tileStyle}
           onMapClick={handleMapClick}
           onMarkerClick={handleMarkerClick}
           onDeleteLocation={handleDeleteLocation}
