@@ -65,28 +65,7 @@ export const register = catchAsync(async (req, res) => {
     const token = generateToken(user.id, user.email, user.role);
     const refreshToken = await createRefreshToken(user.id);
 
-    // Create email verification code (6 digits)
-    const verificationCode = await createEmailVerificationCode(user.id);
-    console.log(
-      `[EMAIL] Verification code for ${user.email}: ${verificationCode}`,
-    );
-    console.log(
-      `[EMAIL] EMAIL_USER set: ${!!process.env.EMAIL_USER}, EMAIL_PASSWORD set: ${!!process.env.EMAIL_PASSWORD}, EMAIL_SERVICE: ${process.env.EMAIL_SERVICE || "gmail"}`,
-    );
-    if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
-      sendVerificationEmail(user.email, verificationCode).catch((err) => {
-        console.log("FULL EMAIL ERROR:", err.message);
-        logger.error({
-          message: "Background email send failed",
-          error: err.message,
-        });
-      });
-    } else {
-      console.log(
-        `[EMAIL] Email not configured — skipping send for ${user.email}`,
-      );
-      logger.warn({ message: "Email not configured — skipping send" });
-    }
+    user.is_email_verified = true;
 
     logger.info({
       message: "User registered successfully",
@@ -109,7 +88,7 @@ export const register = catchAsync(async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      message: "User registered successfully. Please verify your email.",
+      message: "User registered successfully.",
       data: {
         user: {
           id: user.id,
