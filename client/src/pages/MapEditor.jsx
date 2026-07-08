@@ -58,6 +58,20 @@ export default function MapEditor() {
     }
   };
 
+  const handleDeleteLocation = async (id) => {
+    const loc = locations.find((l) => l.id === id);
+    if (!loc) return;
+    if (!confirm(`Delete "${loc.name}"?`)) return;
+    try {
+      const { deleteLocation } = useLocationStore.getState();
+      await deleteLocation(id);
+      toast_(`"${loc.name}" deleted`);
+    } catch (err) {
+      const msg = err?.response?.data?.error || err?.response?.data?.message || err?.message || "Failed to delete";
+      toast_(msg);
+    }
+  };
+
   const handleCreatePath = async (form) => {
     try {
       await addPath({ from_location_id: form.fromId, to_location_id: form.toId, distance_meters: parseFloat(form.distance) });
@@ -84,6 +98,7 @@ export default function MapEditor() {
         <MapLayout
           onMapClick={handleMapClick}
           onMarkerClick={handleMarkerClick}
+          onDeleteLocation={handleDeleteLocation}
         />
       </div>
 

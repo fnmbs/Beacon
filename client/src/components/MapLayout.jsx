@@ -85,15 +85,21 @@ function MapClickHandler({ onMapClick }) {
   return null;
 }
 
-function NodePopup({ loc }) {
+function NodePopup({ loc, onDelete }) {
   return (
     <div style={{ background: "#fff", border: "1px solid #e5e5e5", minWidth: 160, overflow: "hidden", borderRadius: 6 }}>
       <div style={{ padding: "8px 12px", borderBottom: "1px solid #f0f0f0" }}>
         <div style={{ fontSize: 13, fontWeight: 500, color: "#111", marginBottom: 2 }}>{loc.name}</div>
         <span style={{ fontSize: 9, fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase", color: "#999" }}>{loc.type || "other"}</span>
       </div>
-      <div style={{ padding: "4px 12px" }}>
+      <div style={{ padding: "4px 12px", display: "flex", gap: 6, alignItems: "center" }}>
         <span style={{ fontSize: 9, color: "#ccc" }}>click to select</span>
+        {onDelete && (
+          <button onClick={(e) => { e.stopPropagation(); onDelete(loc.id); }}
+            style={{ marginLeft: "auto", fontSize: 9, color: "#d32f2f", border: "1px solid #d32f2f", background: "none", padding: "2px 8px", borderRadius: 3, cursor: "pointer" }}>
+            Delete
+          </button>
+        )}
       </div>
     </div>
   );
@@ -106,6 +112,7 @@ export default function MapLayout({
   to = "",
   onMarkerClick,
   onMapClick,
+  onDeleteLocation,
   tileStyle: externalTileStyle,
 }) {
   const { locations, loading, fetchLocations, totalLocations } = useLocationStore();
@@ -249,7 +256,7 @@ export default function MapLayout({
                 eventHandlers={{ click: () => onMarkerClick?.(loc.id) }}
               >
                 <Popup className="custom-popup">
-                  <NodePopup loc={loc} />
+                  <NodePopup loc={loc} onDelete={onDeleteLocation} />
                 </Popup>
               </Marker>
             );
@@ -263,7 +270,7 @@ export default function MapLayout({
               eventHandlers={{ click: () => onMarkerClick?.(loc.id) }}
             >
               <Popup className="custom-popup">
-                <NodePopup loc={loc} />
+                <NodePopup loc={loc} onDelete={onDeleteLocation} />
               </Popup>
             </Marker>
           );
