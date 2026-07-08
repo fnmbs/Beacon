@@ -28,7 +28,6 @@ export const sendVerificationEmail = async (email, code) => {
   };
 
   try {
-    console.log("yfb")
     const info = await transporter.sendMail(mailOptions);
     console.log(info);
     console.log("Verification email sent:", info.response);
@@ -46,7 +45,7 @@ export const sendVerificationEmail = async (email, code) => {
       to: email,
       error: error.message,
     });
-    throw new Error("Failed to send verification email");
+    throw new Error("Failed to send verification email", error.message);
   }
 };
 
