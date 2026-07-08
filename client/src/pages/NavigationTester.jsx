@@ -27,22 +27,6 @@ export default function NavigationTester() {
   const fromName = locations.find((l) => l.id === from)?.name;
   const toName = locations.find((l) => l.id === to)?.name;
 
-  const quickDestinations = [
-    { label: "ICT Centre", short: "ICT" },
-    { label: "Senate Building", short: "SEN" },
-    { label: "OOU Central Mosque", short: "MOS" },
-    { label: "OOU Entrance Gate", short: "GATE" },
-    { label: "Motion Ground", short: "MTN" },
-  ];
-
-  const handleQuickDestination = (label) => {
-    const loc = locations.find((l) => l.name === label);
-    if (loc) {
-      setTo(loc.id);
-      clearRoute();
-    }
-  };
-
   const SHEET_COLLAPSED = 70;
   const SHEET_EXPANDED = 260;
 
@@ -108,49 +92,8 @@ export default function NavigationTester() {
         <button className="find-btn" onClick={run} disabled={!from || !to || loading} style={{ marginTop: 6 }}>{loading ? "…" : "Go"}</button>
       </div>
 
-      {/* QUICK DESTINATIONS */}
-      <div style={{ position: "absolute", top: 108, left: 14, right: 14, zIndex: 40, display: "flex", gap: 6, overflowX: "auto", paddingBottom: 4 }}>
-        <style>{`.qd-scroll::-webkit-scrollbar { display: none; }`}</style>
-        {quickDestinations.map((qd) => {
-          const found = locations.some((l) => l.name === qd.label);
-          return (
-            <button
-              key={qd.label}
-              onClick={() => handleQuickDestination(qd.label)}
-              disabled={!found}
-              title={found ? `Navigate to ${qd.label}` : `${qd.label} — not available`}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 5,
-                flexShrink: 0,
-                padding: "6px 12px",
-                borderRadius: 8,
-                border: found ? "1px solid #e0e0e0" : "1px dashed #e0e0e0",
-                background: found ? "#fff" : "#fafafa",
-                fontSize: 11,
-                fontWeight: 500,
-                color: found ? "#111" : "#bbb",
-                cursor: found ? "pointer" : "not-allowed",
-                boxShadow: found ? "0 1px 4px rgba(0,0,0,0.04)" : "none",
-                transition: "all 0.12s",
-                whiteSpace: "nowrap",
-                fontFamily: "inherit",
-                opacity: found ? 1 : 0.6,
-              }}
-              onMouseEnter={(e) => { if (found) e.currentTarget.style.background = "#f5f5f5"; }}
-              onMouseLeave={(e) => { if (found) e.currentTarget.style.background = "#fff"; }}
-            >
-              <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.04em", color: found ? "#888" : "#ccc" }}>{qd.short}</span>
-              <span>{qd.label}</span>
-              {!found && <span style={{ fontSize: 9, color: "#ccc" }}>unavailable</span>}
-            </button>
-          );
-        })}
-      </div>
-
       {/* TILE TOGGLE */}
-      <div style={{ position: "absolute", top: 156, right: 14, zIndex: 40, background: "#fff", border: "1px solid #e4e4e4", borderRadius: 8, boxShadow: "0 2px 10px rgba(0,0,0,0.06)", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+      <div style={{ position: "absolute", top: 108, right: 14, zIndex: 40, background: "#fff", border: "1px solid #e4e4e4", borderRadius: 8, boxShadow: "0 2px 10px rgba(0,0,0,0.06)", overflow: "hidden", display: "flex", flexDirection: "column" }}>
         {["Map", "Satellite", "Dark"].map((s, i) => (
           <button key={s} className={`tile-btn${i === 0 ? " active" : ""}`} style={i > 0 ? { borderTop: "1px solid #ececec" } : {}}>{s}</button>
         ))}
