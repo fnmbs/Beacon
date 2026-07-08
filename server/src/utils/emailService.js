@@ -26,19 +26,29 @@ export const sendVerificationEmail = async (email, code) => {
       <p>If you didn't create this account, please ignore this email.</p>
     `,
   };
+  console.log(email, code);
+  console.log(mailOptions);
 
   try {
     const info = await transporter.sendMail(mailOptions);
-    logger.info({ message: "Verification email sent", to: email, response: info.response, accepted: info.accepted });
+    logger.info({
+      message: "Verification email sent",
+      to: email,
+      response: info.response,
+      accepted: info.accepted,
+    });
     return { success: true };
   } catch (error) {
-    logger.error({ message: "Email verification error", to: email, error: error.message });
+    logger.error({
+      message: "Email verification error",
+      to: email,
+      error: error.message,
+    });
     throw new Error("Failed to send verification email");
   }
 };
 
 export const sendPasswordResetEmail = async (email, token) => {
-
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: email,
@@ -59,7 +69,10 @@ export const sendPasswordResetEmail = async (email, token) => {
     await transporter.sendMail(mailOptions);
     return { success: true };
   } catch (error) {
-    logger.error({ message: "Password reset email error", error: error.message });
+    logger.error({
+      message: "Password reset email error",
+      error: error.message,
+    });
     throw new Error("Failed to send password reset email");
   }
 };
@@ -70,7 +83,10 @@ export const testEmailConnection = async () => {
     logger.info("Email service connected successfully");
     return true;
   } catch (error) {
-    logger.error({ message: "Email service connection failed", error: error.message });
+    logger.error({
+      message: "Email service connection failed",
+      error: error.message,
+    });
     return false;
   }
 };
