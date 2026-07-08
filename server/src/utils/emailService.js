@@ -26,11 +26,12 @@ export const sendVerificationEmail = async (email, code) => {
       <p>If you didn't create this account, please ignore this email.</p>
     `,
   };
-  console.log(email, code);
-  console.log(mailOptions);
 
   try {
     const info = await transporter.sendMail(mailOptions);
+    console.log(info);
+    console.log("Verification email sent:", info.response);
+    console.log(info.accepted);
     logger.info({
       message: "Verification email sent",
       to: email,
