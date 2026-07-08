@@ -77,6 +77,8 @@ function FitRoute({ positions }) {
 function MapClickHandler({ onMapClick }) {
   useMapEvents({
     click(e) {
+      const target = e.originalEvent?.target;
+      if (target?.closest?.(".leaflet-marker-icon")) return;
       onMapClick?.(e.latlng);
     },
   });

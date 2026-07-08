@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import MapLayout from "../components/MapLayout";
 import useLocationStore from "../store/useLocationStore";
 import usePathStore from "../store/usePathStore";
@@ -8,26 +8,19 @@ export default function MapEditor() {
   const [nodeModal, setNodeModal] = useState(null);
   const [pathModal, setPathModal] = useState(null);
   const [selected, setSelected] = useState([]);
-  const [placementMode, setPlacementMode] = useState(false);
-  const placementRef = useRef(false);
 
   const { locations, fetchLocations } = useLocationStore();
-  const { addPath, fetchPaths } = usePathStore();
+  const { addPath } = usePathStore();
 
   useEffect(() => { fetchLocations(1, 100); }, []);
 
   const toast_ = (msg) => { setToast(msg); setTimeout(() => setToast(""), 2200); };
 
   const handleMapClick = (latlng) => {
-    if (placementMode) {
-      placementRef.current = false;
-      setPlacementMode(false);
-      setNodeModal({ lat: latlng.lat.toFixed(6), lng: latlng.lng.toFixed(6) });
-    }
+    setNodeModal({ lat: latlng.lat.toFixed(6), lng: latlng.lng.toFixed(6) });
   };
 
   const handleMarkerClick = (locId) => {
-    if (placementMode) return;
     setSelected((prev) => {
       if (prev.length === 0) return [locId];
       if (prev.length === 1) {
@@ -76,36 +69,13 @@ export default function MapEditor() {
         <div className="flex items-center gap-3">
           <span style={{ fontSize: 12, fontWeight: 500, color: "#111" }}>Map Editor</span>
           <span style={{ fontSize: 11, color: "#999", marginLeft: 4 }}>
-            {placementMode ? "Click on the map to place a node" : "Click two markers to connect them"}
+            Click empty map to add node · Click two markers to connect
           </span>
         </div>
-        <div className="flex items-center gap-3">
-          <span style={{ fontSize: 11, color: "#999" }}>{locations.length} nodes</span>
-          <button
-            onClick={() => { setPlacementMode((p) => !p); setSelected([]); }}
-            style={{
-              fontSize: 11, color: placementMode ? "#fff" : "#111",
-              border: `1px solid ${placementMode ? "#111" : "#111"}`,
-              background: placementMode ? "#111" : "transparent",
-              padding: "6px 14px", cursor: "pointer", transition: "all 0.12s",
-            }}
-          >
-            {placementMode ? "Cancel" : "+ Add node"}
-          </button>
-        </div>
+        <span style={{ fontSize: 11, color: "#999" }}>{locations.length} nodes</span>
       </header>
 
       <div style={{ flex: 1, minHeight: 0, position: "relative" }}>
-        {placementMode && (
-          <div style={{
-            position: "absolute", top: 12, left: "50%", transform: "translateX(-50%)",
-            zIndex: 1000, background: "#111", color: "#fff",
-            padding: "8px 18px", fontSize: 12, borderRadius: 6,
-            pointerEvents: "none",
-          }}>
-            Click anywhere on the map to place a new node
-          </div>
-        )}
         <MapLayout
           onMapClick={handleMapClick}
           onMarkerClick={handleMarkerClick}
