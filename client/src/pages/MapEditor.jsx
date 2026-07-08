@@ -17,7 +17,11 @@ export default function MapEditor() {
   const toast_ = (msg) => { setToast(msg); setTimeout(() => setToast(""), 2200); };
 
   const handleMapClick = (latlng) => {
-    setNodeModal({ lat: latlng.lat.toFixed(6), lng: latlng.lng.toFixed(6) });
+    const maxNum = locations.reduce((max, loc) => {
+      const m = (loc.name || "").match(/^junction (\d+)$/i);
+      return m ? Math.max(max, parseInt(m[1], 10)) : max;
+    }, 0);
+    setNodeModal({ lat: latlng.lat.toFixed(6), lng: latlng.lng.toFixed(6), defaultName: `junction ${maxNum + 1}` });
   };
 
   const handleMarkerClick = (locId) => {
@@ -116,7 +120,7 @@ export default function MapEditor() {
 }
 
 function NodeForm({ latlng, onSave, onClose }) {
-  const [form, setForm] = useState({ name: "", type: "other", latitude: latlng.lat, longitude: latlng.lng });
+  const [form, setForm] = useState({ name: latlng.defaultName || "", type: "other", latitude: latlng.lat, longitude: latlng.lng });
   const h = (e) => setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
 
   return (
