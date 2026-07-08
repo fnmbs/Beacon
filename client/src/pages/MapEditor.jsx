@@ -117,7 +117,7 @@ export default function MapEditor() {
 }
 
 function NodeForm({ latlng, onSave, onClose }) {
-  const [form, setForm] = useState({ name: "", type: "", latitude: latlng.lat, longitude: latlng.lng });
+  const [form, setForm] = useState({ name: "", type: "other", latitude: latlng.lat, longitude: latlng.lng });
   const h = (e) => setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
 
   return (

@@ -29,7 +29,7 @@ export default function Locations() {
 
   const save = async (form) => {
     try {
-      await addLocation({ name: form.name, type: form.type, latitude: form.latitude || undefined, longitude: form.longitude || undefined });
+      await addLocation({ name: form.name, type: form.type, latitude: parseFloat(form.latitude) || undefined, longitude: parseFloat(form.longitude) || undefined });
       toast_("Location created");
       setModal(null);
     } catch { toast_("Failed to create location"); }
@@ -116,7 +116,7 @@ export default function Locations() {
 }
 
 function LocModal({ initial, onClose, onSave }) {
-  const [form, setForm] = useState({ name: initial?.name || "", type: initial?.type || "", latitude: initial?.latitude || "", longitude: initial?.longitude || "" });
+  const [form, setForm] = useState({ name: initial?.name || "", type: initial?.type || "other", latitude: initial?.latitude || "", longitude: initial?.longitude || "" });
   const h = (e) => setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
 
   return (
