@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import useLocationStore from "../store/useLocationStore";
@@ -74,6 +74,15 @@ function FitRoute({ positions }) {
   return null;
 }
 
+function MapClickHandler({ onMapClick }) {
+  useMapEvents({
+    click(e) {
+      onMapClick?.(e.latlng);
+    },
+  });
+  return null;
+}
+
 function NodePopup({ loc }) {
   return (
     <div style={{ background: "#fff", border: "1px solid #e5e5e5", minWidth: 160, overflow: "hidden", borderRadius: 6 }}>
@@ -94,6 +103,7 @@ export default function MapLayout({
   from = "",
   to = "",
   onMarkerClick,
+  onMapClick,
   tileStyle: externalTileStyle,
 }) {
   const { locations, loading, fetchLocations, totalLocations } = useLocationStore();
@@ -168,6 +178,7 @@ export default function MapLayout({
           maxZoom={19}
         />
 
+        {onMapClick && <MapClickHandler onMapClick={onMapClick} />}
         {routePositions.length > 1 && <FitRoute positions={routePositions} />}
 
         {routePositions.length > 1 && (

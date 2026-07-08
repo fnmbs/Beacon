@@ -1,7 +1,7 @@
 import { create } from "zustand";
-import { getLocations, searchLocations } from "../api/axios";
+import { getLocations, searchLocations, addLocation as addLocationApi, deleteLocation as deleteLocationApi } from "../api/axios";
 
-const useLocationStore = create((set) => ({
+const useLocationStore = create((set, get) => ({
   locations: [],
   totalLocations: 0,
   loading: false,
@@ -34,6 +34,31 @@ const useLocationStore = create((set) => ({
     } catch (err) {
       console.error("Failed to search locations:", err);
       set({ error: true, loading: false });
+    }
+  },
+
+  addLocation: async (data) => {
+    try {
+      const res = await addLocationApi(data);
+      await get().fetchLocations(1, 10);
+      return res.data;
+    } catch (err) {
+      console.error("Failed to add location:", err);
+      throw err;
+    }
+  },
+
+  deleteLocation: async (id) => {
+    try {
+      await deleteLocationApi(id);
+      const { locations, totalLocations } = get();
+      set({
+        locations: locations.filter((l) => l.id !== id),
+        totalLocations: totalLocations - 1,
+      });
+    } catch (err) {
+      console.error("Failed to delete location:", err);
+      throw err;
     }
   },
 }));

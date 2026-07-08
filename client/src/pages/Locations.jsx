@@ -25,8 +25,22 @@ export default function Locations() {
     else { setPage(1); fetchLocations(1, limit); }
   };
 
-  const save = () => { toast_(modal?.id ? "Location updated" : "Location created"); setModal(null); };
-  const del = () => { if (!confirm("Delete this location?")) return; toast_("Deleted"); };
+  const { addLocation, deleteLocation } = useLocationStore();
+
+  const save = async (form) => {
+    try {
+      await addLocation({ name: form.name, type: form.type, latitude: form.latitude || undefined, longitude: form.longitude || undefined });
+      toast_("Location created");
+      setModal(null);
+    } catch { toast_("Failed to create location"); }
+  };
+  const del = async (id) => {
+    if (!confirm("Delete this location?")) return;
+    try {
+      await deleteLocation(id);
+      toast_("Deleted");
+    } catch { toast_("Failed to delete"); }
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -102,7 +116,7 @@ export default function Locations() {
 }
 
 function LocModal({ initial, onClose, onSave }) {
-  const [form, setForm] = useState({ name: initial?.name || "", type: initial?.type || "" });
+  const [form, setForm] = useState({ name: initial?.name || "", type: initial?.type || "", latitude: initial?.latitude || "", longitude: initial?.longitude || "" });
   const h = (e) => setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
 
   return (
@@ -128,6 +142,16 @@ function LocModal({ initial, onClose, onSave }) {
               <option value="">No type</option>
               {["gate", "building", "junction", "parking", "field", "other"].map((t) => (<option key={t} value={t}>{t}</option>))}
             </select>
+          </div>
+          <div>
+            <label style={{ display: "block", fontSize: 10, fontWeight: 500, letterSpacing: "0.08em", textTransform: "uppercase", color: "#999", marginBottom: 6 }}>Latitude</label>
+            <input className="w-full outline-none" style={{ padding: "8px 12px", border: "1px solid #e5e5e5", borderRadius: 6, fontSize: 13, color: "#111", background: "#fff" }}
+              name="latitude" type="number" step="any" value={form.latitude} onChange={h} placeholder="e.g. 6.9276" />
+          </div>
+          <div>
+            <label style={{ display: "block", fontSize: 10, fontWeight: 500, letterSpacing: "0.08em", textTransform: "uppercase", color: "#999", marginBottom: 6 }}>Longitude</label>
+            <input className="w-full outline-none" style={{ padding: "8px 12px", border: "1px solid #e5e5e5", borderRadius: 6, fontSize: 13, color: "#111", background: "#fff" }}
+              name="longitude" type="number" step="any" value={form.longitude} onChange={h} placeholder="e.g. 3.8713" />
           </div>
         </div>
 

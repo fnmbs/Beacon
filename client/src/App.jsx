@@ -7,6 +7,7 @@ import Dashboard from "./pages/Dashboard";
 import Locations from "./pages/Locations";
 import Paths from "./pages/Paths";
 import NavigationTester from "./pages/NavigationTester";
+import MapEditor from "./pages/MapEditor";
 import Academic from "./pages/Academic";
 import Login from "./pages/Login";
 import AdminLogin from "./pages/AdminLogin";
@@ -39,6 +40,7 @@ export default function App() {
               <Route path="locations" element={<Locations />} />
               <Route path="paths" element={<Paths />} />
               <Route path="tester" element={<NavigationTester />} />
+              <Route path="editor" element={<MapEditor />} />
               <Route path="academics" element={<Academic />} />
             </Route>
 

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import usePathStore from "../store/usePathStore";
+import useLocationStore from "../store/useLocationStore";
 
 export default function Paths() {
   const [modal, setModal] = useState(null);
@@ -8,13 +9,27 @@ export default function Paths() {
   const [page, setPage] = useState(1);
   const limit = 5;
 
-  const { fetchPaths, paths, totalPaths, totalPathsDistance, totalPages, loading, error } = usePathStore();
+  const { fetchPaths, paths, totalPaths, totalPathsDistance, totalPages, loading, error, addPath, deletePath } = usePathStore();
+  const { locations, fetchLocations } = useLocationStore();
 
   useEffect(() => { fetchPaths(page, limit); }, [page]);
+  useEffect(() => { fetchLocations(1, 100); }, []);
 
   const toast_ = (msg) => { setToast(msg); setTimeout(() => setToast(""), 2200); };
-  const save = () => { toast_(modal?.id ? "Path updated" : "Path created"); setModal(null); };
-  const del = () => { if (!confirm("Delete this path?")) return; toast_("Deleted"); };
+  const save = async (form) => {
+    try {
+      await addPath({ from_location_id: form.from_location_id, to_location_id: form.to_location_id, distance_meters: parseFloat(form.distance_meters) });
+      toast_("Path created");
+      setModal(null);
+    } catch { toast_("Failed to create path"); }
+  };
+  const del = async (id) => {
+    if (!confirm("Delete this path?")) return;
+    try {
+      await deletePath(id);
+      toast_("Deleted");
+    } catch { toast_("Failed to delete"); }
+  };
 
   const filtered = search ? paths.filter((p) => p.from_name?.toLowerCase().includes(search.toLowerCase()) || p.to_name?.toLowerCase().includes(search.toLowerCase())) : paths;
 
@@ -96,6 +111,7 @@ function PathModal({ initial, onClose, onSave }) {
   const [form, setForm] = useState({ from_location_id: initial?.from_location_id || "", to_location_id: initial?.to_location_id || "", distance_meters: initial?.distance_meters || "" });
   const h = (e) => setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
   const valid = form.from_location_id && form.to_location_id && form.distance_meters && form.from_location_id !== form.to_location_id;
+  const { locations } = useLocationStore();
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.3)" }} onClick={onClose}>
@@ -111,8 +127,11 @@ function PathModal({ initial, onClose, onSave }) {
           {[{ label: "From", name: "from_location_id" }, { label: "To", name: "to_location_id" }].map((f) => (
             <div key={f.name}>
               <label style={{ display: "block", fontSize: 10, fontWeight: 500, letterSpacing: "0.08em", textTransform: "uppercase", color: "#999", marginBottom: 6 }}>{f.label}</label>
-              <input className="w-full outline-none" style={{ padding: "8px 12px", border: "1px solid #e5e5e5", borderRadius: 6, fontSize: 13, color: "#111", background: "#fff" }}
-                name={f.name} value={form[f.name]} onChange={h} placeholder="Location ID" />
+              <select className="w-full outline-none" style={{ padding: "8px 12px", border: "1px solid #e5e5e5", borderRadius: 6, fontSize: 13, color: form[f.name] ? "#111" : "#bbb", background: "#fff" }}
+                name={f.name} value={form[f.name]} onChange={h}>
+                <option value="">Select location…</option>
+                {locations.map((l) => (<option key={l.id} value={l.id}>{l.name}</option>))}
+              </select>
             </div>
           ))}
           <div>

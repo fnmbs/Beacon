@@ -49,6 +49,18 @@ const NAV = [
     ),
   },
   {
+    to: "/editor",
+    label: "Map Editor",
+    icon: (
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-4 h-4">
+        <path d="M2 3h12v10H2z" />
+        <path d="M8 3v10" />
+        <path d="M2 8h12" />
+        <circle cx="8" cy="8" r="1.5" />
+      </svg>
+    ),
+  },
+  {
     to: "/academics",
     label: "Academics",
     icon: (
