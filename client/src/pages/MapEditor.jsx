@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import MapLayout from "../components/MapLayout";
 import useLocationStore from "../store/useLocationStore";
 import usePathStore from "../store/usePathStore";
@@ -8,19 +8,26 @@ export default function MapEditor() {
   const [nodeModal, setNodeModal] = useState(null);
   const [pathModal, setPathModal] = useState(null);
   const [selected, setSelected] = useState([]);
+  const [placementMode, setPlacementMode] = useState(false);
+  const placementRef = useRef(false);
 
   const { locations, fetchLocations } = useLocationStore();
-  const { addPath } = usePathStore();
+  const { addPath, fetchPaths } = usePathStore();
 
   useEffect(() => { fetchLocations(1, 100); }, []);
 
   const toast_ = (msg) => { setToast(msg); setTimeout(() => setToast(""), 2200); };
 
   const handleMapClick = (latlng) => {
-    setNodeModal({ lat: latlng.lat.toFixed(6), lng: latlng.lng.toFixed(6) });
+    if (placementMode) {
+      placementRef.current = false;
+      setPlacementMode(false);
+      setNodeModal({ lat: latlng.lat.toFixed(6), lng: latlng.lng.toFixed(6) });
+    }
   };
 
   const handleMarkerClick = (locId) => {
+    if (placementMode) return;
     setSelected((prev) => {
       if (prev.length === 0) return [locId];
       if (prev.length === 1) {
@@ -69,27 +76,49 @@ export default function MapEditor() {
         <div className="flex items-center gap-3">
           <span style={{ fontSize: 12, fontWeight: 500, color: "#111" }}>Map Editor</span>
           <span style={{ fontSize: 11, color: "#999", marginLeft: 4 }}>
-            Click map to add node · Click two markers to connect
+            {placementMode ? "Click on the map to place a node" : "Click two markers to connect them"}
           </span>
         </div>
-        <span style={{ fontSize: 11, color: "#999" }}>{locations.length} nodes</span>
+        <div className="flex items-center gap-3">
+          <span style={{ fontSize: 11, color: "#999" }}>{locations.length} nodes</span>
+          <button
+            onClick={() => { setPlacementMode((p) => !p); setSelected([]); }}
+            style={{
+              fontSize: 11, color: placementMode ? "#fff" : "#111",
+              border: `1px solid ${placementMode ? "#111" : "#111"}`,
+              background: placementMode ? "#111" : "transparent",
+              padding: "6px 14px", cursor: "pointer", transition: "all 0.12s",
+            }}
+          >
+            {placementMode ? "Cancel" : "+ Add node"}
+          </button>
+        </div>
       </header>
 
       <div style={{ flex: 1, minHeight: 0, position: "relative" }}>
+        {placementMode && (
+          <div style={{
+            position: "absolute", top: 12, left: "50%", transform: "translateX(-50%)",
+            zIndex: 1000, background: "#111", color: "#fff",
+            padding: "8px 18px", fontSize: 12, borderRadius: 6,
+            pointerEvents: "none",
+          }}>
+            Click anywhere on the map to place a new node
+          </div>
+        )}
         <MapLayout
-          standalone={false}
           onMapClick={handleMapClick}
           onMarkerClick={handleMarkerClick}
         />
       </div>
 
       {nodeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.3)" }} onClick={() => setNodeModal(null)}>
+        <div className="fixed inset-0" style={{ zIndex: 10000, background: "rgba(0,0,0,0.3)", display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => setNodeModal(null)}>
           <div className="w-full max-w-sm mx-4" style={{ background: "#fff", borderRadius: 8, border: "1px solid #e5e5e5" }} onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between px-6 py-3.5" style={{ borderBottom: "1px solid #e5e5e5" }}>
               <span style={{ fontSize: 13, fontWeight: 500, color: "#111" }}>New node</span>
               <button onClick={() => setNodeModal(null)} style={{ color: "#999", background: "none", border: "none", cursor: "pointer" }}>
-                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-3.5 h-3.5"><path d="M1 1l10 10M11 1L1 11" /></svg>
+                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><path d="M1 1l10 10M11 1L1 11" /></svg>
               </button>
             </div>
             <NodeForm latlng={nodeModal} onSave={handleCreateNode} onClose={() => setNodeModal(null)} />
@@ -98,12 +127,12 @@ export default function MapEditor() {
       )}
 
       {pathModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.3)" }} onClick={() => setPathModal(null)}>
+        <div className="fixed inset-0" style={{ zIndex: 10000, background: "rgba(0,0,0,0.3)", display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => setPathModal(null)}>
           <div className="w-full max-w-sm mx-4" style={{ background: "#fff", borderRadius: 8, border: "1px solid #e5e5e5" }} onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between px-6 py-3.5" style={{ borderBottom: "1px solid #e5e5e5" }}>
               <span style={{ fontSize: 13, fontWeight: 500, color: "#111" }}>New path</span>
               <button onClick={() => setPathModal(null)} style={{ color: "#999", background: "none", border: "none", cursor: "pointer" }}>
-                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-3.5 h-3.5"><path d="M1 1l10 10M11 1L1 11" /></svg>
+                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><path d="M1 1l10 10M11 1L1 11" /></svg>
               </button>
             </div>
             <PathForm initial={pathModal} onSave={handleCreatePath} onClose={() => setPathModal(null)} />
@@ -111,7 +140,7 @@ export default function MapEditor() {
         </div>
       )}
 
-      {toast && <div className="fixed bottom-5 right-5 px-4 py-2.5 z-50" style={{ background: "#111", color: "#fff", fontSize: 12, borderRadius: 6 }}>{toast}</div>}
+      {toast && <div className="fixed bottom-5 right-5 px-4 py-2.5" style={{ zIndex: 10001, background: "#111", color: "#fff", fontSize: 12, borderRadius: 6 }}>{toast}</div>}
     </div>
   );
 }
@@ -131,8 +160,8 @@ function NodeForm({ latlng, onSave, onClose }) {
         <label style={{ display: "block", fontSize: 10, fontWeight: 500, letterSpacing: "0.08em", textTransform: "uppercase", color: "#999", marginBottom: 6 }}>Type</label>
         <select className="w-full outline-none" style={{ padding: "8px 12px", border: "1px solid #e5e5e5", borderRadius: 6, fontSize: 13, color: form.type ? "#111" : "#bbb", background: "#fff" }}
           name="type" value={form.type} onChange={h}>
-          <option value="">No type</option>
-          {["gate", "building", "junction", "parking", "field", "other"].map((t) => (<option key={t} value={t}>{t}</option>))}
+          <option value="other">other</option>
+          {["gate", "building", "junction", "parking", "field"].map((t) => (<option key={t} value={t}>{t}</option>))}
         </select>
       </div>
       <div className="flex gap-3">
@@ -172,7 +201,7 @@ function PathForm({ initial, onSave, onClose }) {
       <div className="flex gap-2 pt-2">
         <button onClick={onClose} className="flex-1" style={{ padding: "9px", fontSize: 11, color: "#111", border: "1px solid #e5e5e5", borderRadius: 6, background: "#fff", cursor: "pointer" }}>Cancel</button>
         <button onClick={() => onSave({ fromId: initial.fromId, toId: initial.toId, distance })} disabled={!distance}
-          className="flex-1" style={{ padding: "9px", fontSize: 11, color: "#fff", border: "1px solid #111", borderRadius: 6, background: "#111", cursor: "pointer", opacity: !distance ? 0.4 : 1 }}>Create path</button>
+          className="flex-1" style={{ padding: "9px", fontSize: 11, color: "#fff", border: "1px solid #e5e5e5", borderRadius: 6, background: "#111", cursor: "pointer", opacity: !distance ? 0.4 : 1 }}>Create path</button>
       </div>
     </div>
   );
