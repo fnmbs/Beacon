@@ -74,7 +74,7 @@ export const register = catchAsync(async (req, res) => {
       `[EMAIL] EMAIL_USER set: ${!!process.env.EMAIL_USER}, EMAIL_PASSWORD set: ${!!process.env.EMAIL_PASSWORD}, EMAIL_SERVICE: ${process.env.EMAIL_SERVICE || "gmail"}`,
     );
     if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
-      console.log(EMAIL_USER, EMAIL_PASSWORD);
+      console.log(process.env.EMAIL_USER, process.env.EMAIL_PASSWORD);
       sendVerificationEmail(user.email, verificationCode).catch((err) => {
         console.log("FULL EMAIL ERROR:", JSON.stringify(err, null, 2));
         logger.error({
