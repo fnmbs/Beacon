@@ -4,6 +4,7 @@ import logger from "./utils/logger.js";
 import { validateEnvironment } from "./utils/validateEnv.js";
 import initDb from "./scripts/initDb.js";
 import initAuthDb from "./scripts/initAuthDb.js";
+import { testEmailConnection } from "./utils/emailService.js";
 
 dotenv.config();
 
@@ -31,6 +32,7 @@ const startServer = async () => {
       port: PORT,
       environment: process.env.NODE_ENV || "development",
     });
+    testEmailConnection();
   });
 
   // Graceful shutdown
