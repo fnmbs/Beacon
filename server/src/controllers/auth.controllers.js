@@ -75,13 +75,16 @@ export const register = catchAsync(async (req, res) => {
     );
     if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
       sendVerificationEmail(user.email, verificationCode).catch((err) => {
+        console.log("FULL EMAIL ERROR:", err.message);
         logger.error({
           message: "Background email send failed",
           error: err.message,
         });
       });
     } else {
-      console.log(`[EMAIL] Email not configured — skipping send for ${user.email}`);
+      console.log(
+        `[EMAIL] Email not configured — skipping send for ${user.email}`,
+      );
       logger.warn({ message: "Email not configured — skipping send" });
     }
 
