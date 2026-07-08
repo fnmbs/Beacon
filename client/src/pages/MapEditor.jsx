@@ -3,6 +3,15 @@ import MapLayout from "../components/MapLayout";
 import useLocationStore from "../store/useLocationStore";
 import usePathStore from "../store/usePathStore";
 
+const haversine = (lat1, lon1, lat2, lon2) => {
+  const R = 6371000;
+  const toRad = (d) => (d * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+};
+
 export default function MapEditor() {
   const [toast, setToast] = useState("");
   const [nodeModal, setNodeModal] = useState(null);
@@ -41,7 +50,11 @@ export default function MapEditor() {
       const from = locations.find((l) => l.id === selected[0]);
       const to = locations.find((l) => l.id === selected[1]);
       if (from && to) {
-        setPathModal({ fromId: from.id, fromName: from.name, toId: to.id, toName: to.name });
+        const dist = haversine(
+          parseFloat(from.latitude), parseFloat(from.longitude),
+          parseFloat(to.latitude), parseFloat(to.longitude),
+        );
+        setPathModal({ fromId: from.id, fromName: from.name, toId: to.id, toName: to.name, distance: dist.toFixed(1) });
       }
       setSelected([]);
     }
@@ -78,8 +91,9 @@ export default function MapEditor() {
       await addPath({ from_location_id: form.fromId, to_location_id: form.toId, distance_meters: parseFloat(form.distance) });
       toast_("Path created");
       setPathModal(null);
-    } catch {
-      toast_("Failed to create path");
+    } catch (err) {
+      const msg = err?.response?.data?.error || err?.response?.data?.message || err?.message || "Failed to create path";
+      toast_(msg);
     }
   };
 
@@ -198,22 +212,19 @@ function NodeForm({ latlng, onSave, onClose }) {
 }
 
 function PathForm({ initial, onSave, onClose }) {
-  const [distance, setDistance] = useState("");
-
   return (
     <div className="p-6 flex flex-col gap-4">
       <div style={{ fontSize: 12, color: "#666", lineHeight: 1.5 }}>
         Connect <strong>{initial.fromName}</strong> → <strong>{initial.toName}</strong>
       </div>
-      <div>
-        <label style={{ display: "block", fontSize: 10, fontWeight: 500, letterSpacing: "0.08em", textTransform: "uppercase", color: "#999", marginBottom: 6 }}>Distance (m)</label>
-        <input className="w-full outline-none" style={{ padding: "8px 12px", border: "1px solid #e5e5e5", borderRadius: 6, fontSize: 13, color: "#111", background: "#fff" }}
-          type="number" min="0" step="0.01" value={distance} onChange={(e) => setDistance(e.target.value)} placeholder="e.g. 45.5" autoFocus />
+      <div style={{ padding: "10px 14px", background: "#f5f5f5", borderRadius: 6, border: "1px solid #e5e5e5" }}>
+        <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: "0.08em", textTransform: "uppercase", color: "#999", marginBottom: 4 }}>Distance (auto-calculated)</div>
+        <div style={{ fontSize: 20, fontWeight: 600, color: "#111", fontFamily: "'JetBrains Mono', monospace" }}>{initial.distance}<span style={{ fontSize: 13, fontWeight: 400, color: "#999", marginLeft: 4 }}>m</span></div>
       </div>
       <div className="flex gap-2 pt-2">
         <button onClick={onClose} className="flex-1" style={{ padding: "9px", fontSize: 11, color: "#111", border: "1px solid #e5e5e5", borderRadius: 6, background: "#fff", cursor: "pointer" }}>Cancel</button>
-        <button onClick={() => onSave({ fromId: initial.fromId, toId: initial.toId, distance })} disabled={!distance}
-          className="flex-1" style={{ padding: "9px", fontSize: 11, color: "#fff", border: "1px solid #e5e5e5", borderRadius: 6, background: "#111", cursor: "pointer", opacity: !distance ? 0.4 : 1 }}>Create path</button>
+        <button onClick={() => onSave({ fromId: initial.fromId, toId: initial.toId, distance: initial.distance })}
+          className="flex-1" style={{ padding: "9px", fontSize: 11, color: "#fff", border: "1px solid #111", borderRadius: 6, background: "#111", cursor: "pointer" }}>Create path</button>
       </div>
     </div>
   );
