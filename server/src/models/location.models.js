@@ -50,23 +50,27 @@ export const getLocationByCoordinates = async ({ latitude, longitude }) => {
     SELECT *,
     (
       6371000 * acos(
-        cos(radians($1)) *
-        cos(radians(latitude)) *
-        cos(radians(longitude) - radians($2)) +
-        sin(radians($1)) *
-        sin(radians(latitude))
+        LEAST(1, GREATEST(-1,
+          cos(radians($1)) *
+          cos(radians(latitude)) *
+          cos(radians(longitude) - radians($2)) +
+          sin(radians($1)) *
+          sin(radians(latitude))
+        ))
       )
     ) AS distance
     FROM locations
     WHERE (
       6371000 * acos(
-        cos(radians($1)) *
-        cos(radians(latitude)) *
-        cos(radians(longitude) - radians($2)) +
-        sin(radians($1)) *
-        sin(radians(latitude))
+        LEAST(1, GREATEST(-1,
+          cos(radians($1)) *
+          cos(radians(latitude)) *
+          cos(radians(longitude) - radians($2)) +
+          sin(radians($1)) *
+          sin(radians(latitude))
+        ))
       )
-    ) < 20;  -- 🔥 20 meters threshold
+    ) < 20
     `,
     [latitude, longitude],
   );

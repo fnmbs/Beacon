@@ -52,8 +52,9 @@ export default function MapEditor() {
       await addLocation({ name: form.name, type: form.type, latitude: parseFloat(form.latitude), longitude: parseFloat(form.longitude) });
       toast_("Node created");
       setNodeModal(null);
-    } catch {
-      toast_("Failed to create node");
+    } catch (err) {
+      const msg = err?.response?.data?.error || err?.response?.data?.message || err?.message || "Failed to create node";
+      toast_(msg);
     }
   };
 
