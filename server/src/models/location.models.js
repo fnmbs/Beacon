@@ -70,7 +70,7 @@ export const getLocationByCoordinates = async ({ latitude, longitude }) => {
           sin(radians(latitude))
         ))
       )
-    ) < 20
+    ) < 1
     `,
     [latitude, longitude],
   );
