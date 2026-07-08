@@ -28,10 +28,11 @@ export const sendVerificationEmail = async (email, code) => {
   };
 
   try {
-    await transporter.sendMail(mailOptions);
+    const info = await transporter.sendMail(mailOptions);
+    logger.info({ message: "Verification email sent", to: email, response: info.response, accepted: info.accepted });
     return { success: true };
   } catch (error) {
-    logger.error({ message: "Email verification error", error: error.message });
+    logger.error({ message: "Email verification error", to: email, error: error.message });
     throw new Error("Failed to send verification email");
   }
 };
