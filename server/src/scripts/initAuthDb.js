@@ -29,6 +29,9 @@ const initAuthDb = async () => {
     await pool.query(`
       ALTER TABLE users ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
     `);
+    await pool.query(`
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS pending_email VARCHAR(255);
+    `);
     console.log("✓ Users table augmented with auth columns");
 
     // Create refresh_tokens table
