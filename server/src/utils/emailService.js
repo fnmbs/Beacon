@@ -28,6 +28,7 @@ export const sendVerificationEmail = async (email, code) => {
   };
 
   try {
+    console.log("yfb")
     const info = await transporter.sendMail(mailOptions);
     console.log(info);
     console.log("Verification email sent:", info.response);
