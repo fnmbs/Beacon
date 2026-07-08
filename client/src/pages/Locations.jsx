@@ -32,6 +32,7 @@ export default function Locations() {
       await addLocation({ name: form.name, type: form.type, latitude: parseFloat(form.latitude) || undefined, longitude: parseFloat(form.longitude) || undefined });
       toast_("Location created");
       setModal(null);
+      fetchLocations(page, limit);
     } catch { toast_("Failed to create location"); }
   };
   const del = async (id) => {

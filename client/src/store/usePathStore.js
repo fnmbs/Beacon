@@ -33,7 +33,9 @@ const usePathStore = create((set, get) => ({
   addPath: async (data) => {
     try {
       const res = await addPathApi(data);
-      await get().fetchPaths(1, 5);
+      const { paths } = get();
+      const newPath = res.data.path || res.data.data || res.data;
+      set({ paths: [newPath, ...paths], totalPaths: paths.length + 1 });
       return res.data;
     } catch (err) {
       console.error("Failed to add path:", err);

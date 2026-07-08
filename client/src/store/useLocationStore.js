@@ -40,7 +40,11 @@ const useLocationStore = create((set, get) => ({
   addLocation: async (data) => {
     try {
       const res = await addLocationApi(data);
-      await get().fetchLocations(1, 10);
+      const { locations } = get();
+      set({
+        locations: [...locations, res.data.location || res.data.data || res.data],
+        totalLocations: locations.length + 1,
+      });
       return res.data;
     } catch (err) {
       console.error("Failed to add location:", err);
