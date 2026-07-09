@@ -70,8 +70,7 @@ const useCourseStore = create((set) => ({
         description: data.description,
         facultyId: data.facultyId,
         departmentId: data.departmentId,
-        // prefer eligibleLevels array if provided, otherwise fall back to single level
-        eligible_levels: data.eligibleLevels && data.eligibleLevels.length > 0 ? data.eligibleLevels.map(Number) : [Number(data.level)],
+        eligible_levels: data.eligibleLevels && data.eligibleLevels.length > 0 ? data.eligibleLevels.map(Number) : [100],
         credits: Number(data.credits),
         semester: data.semester,
         type: data.type,

@@ -90,14 +90,14 @@ export default function CourseDetailPanel({ course, isNew, onClose, onUpdate, on
               style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: "1px solid #e5e5e5", fontSize: 13, color: "#111", background: editing ? "#fff" : "#f9f9f9", outline: "none", resize: "none" }} />
           </div>
 
-          {["type", "level", "credits", "semester"].map((field) => {
-            const opts = field === "type" ? ["compulsory", "elective"] : field === "level" ? [100, 200, 300, 400, 500, 600, 700] : field === "credits" ? [1, 2, 3, 4, 5, 6] : ["harmattan", "rain"];
+          {["type", "credits", "semester"].map((field) => {
+            const opts = field === "type" ? ["compulsory", "elective"] : field === "credits" ? [1, 2, 3, 4, 5, 6] : ["harmattan", "rain"];
             return (
               <div key={field}>
                 <label style={{ display: "block", fontSize: 10, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.08em", color: "#999", marginBottom: 4 }}>{field.charAt(0).toUpperCase() + field.slice(1)}</label>
                 <select name={field} value={form[field] || ""} onChange={handleChange} disabled={!editing}
                   style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: "1px solid #e5e5e5", fontSize: 13, color: "#111", background: editing ? "#fff" : "#f9f9f9", outline: "none" }}>
-                  {opts.map((opt) => <option key={opt} value={opt}>{field === "type" ? opt.charAt(0).toUpperCase() + opt.slice(1) : field === "level" ? `Level ${opt}` : field === "credits" ? `${opt} Credit${opt > 1 ? "s" : ""}` : opt.charAt(0).toUpperCase() + opt.slice(1)}</option>)}
+                  {opts.map((opt) => <option key={opt} value={opt}>{field === "type" ? opt.charAt(0).toUpperCase() + opt.slice(1) : field === "credits" ? `${opt} Credit${opt > 1 ? "s" : ""}` : opt.charAt(0).toUpperCase() + opt.slice(1)}</option>)}
                 </select>
               </div>
             );

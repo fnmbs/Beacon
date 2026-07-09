@@ -27,7 +27,6 @@ export default function CoursesTab() {
     try {
       const payload = { code: form.code, name: form.name, description: form.description, facultyId: form.facultyId, departmentId: form.departmentId, credits: Number(form.credits), semester: form.semester, type: form.type };
       if (form.eligibleLevels && form.eligibleLevels.length > 0) payload.eligibleLevels = form.eligibleLevels;
-      else payload.level = Number(form.level);
       const course = await addCourse(payload);
       if (form.assignedLecturers.length > 0) { await assignLecturers(course.id, form.assignedLecturers); }
       setSelected(null);
@@ -39,7 +38,6 @@ export default function CoursesTab() {
     try {
       const payload = { code: form.code, name: form.name, description: form.description, faculty_id: form.facultyId, department_id: form.departmentId, credits: Number(form.credits), semester: form.semester, type: form.type, is_active: true };
       if (form.eligibleLevels && form.eligibleLevels.length > 0) payload.eligibleLevels = form.eligibleLevels;
-      else payload.level = Number(form.level);
       await updateCourse(id, payload);
       if (form.assignedLecturers.length > 0) { await assignLecturers(id, form.assignedLecturers); }
       setSelected(null);

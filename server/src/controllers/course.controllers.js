@@ -103,13 +103,14 @@ const createCourses = async (req, res) => {
     }
 
     // create the course (pass eligible_levels when provided)
+    const courseLevel = level || (eligible_levels && eligible_levels.length > 0 ? Math.min(...eligible_levels.map(Number)) : null);
     const course = await Course.createCourse(
       code,
       name,
       description,
       facultyId,
       departmentId,
-      level,
+      courseLevel,
       eligible_levels,
       credits,
       semester,
@@ -489,6 +490,7 @@ const updateCourse = async (req, res) => {
     }
 
     //update course
+    const courseLevel = level || (eligible_levels && eligible_levels.length > 0 ? Math.min(...eligible_levels.map(Number)) : null);
     const updatedCourse = await Course.updateCourse(
       id,
       code,
@@ -496,7 +498,8 @@ const updateCourse = async (req, res) => {
       description,
       faculty_id,
       department_id,
-      level,
+      courseLevel,
+      eligible_levels,
       credits,
       semester,
       type,
