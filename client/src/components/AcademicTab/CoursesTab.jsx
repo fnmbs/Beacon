@@ -8,7 +8,9 @@ import useLecturerStore from "../../store/useLecturerStore";
 export default function CoursesTab() {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(null);
+  const [toast, setToast] = useState("");
   const debounceRef = useRef(null);
+  const toast_ = (msg) => { setToast(msg); setTimeout(() => setToast(""), 3000); };
 
   const { courses, fetchAllCourses, fetchSearchCourses, loading, totalCourses, addCourse, updateCourse, deleteCourse, assignLecturers, clearAssignedLecturers } = useCourseStore();
   const { clearLecturers } = useLecturerStore();
@@ -28,8 +30,12 @@ export default function CoursesTab() {
       if (form.assignedLecturers.length > 0) { await assignLecturers(course.id, form.assignedLecturers); }
       setSelected(null);
       await fetchAllCourses();
+      toast_("Course created");
+    } catch (error) {
+      const msg = error?.response?.data?.message || error?.message || "Failed to create course";
+      toast_(msg);
+      throw error;
     }
-    catch (error) { console.error("Failed to add course:", error); }
   };
   const handleUpdate = async (id, form) => {
     try {
@@ -74,6 +80,8 @@ export default function CoursesTab() {
       )}
 
       {selected && <CourseDetailPanel key={selected?.id || "new"} course={selected} isNew={!selected.id} onClose={() => setSelected(null)} onUpdate={handleUpdate} onDelete={handleDelete} onAdd={handleAdd} />}
+
+      {toast && <div className="fixed bottom-5 right-5 px-4 py-2.5" style={{ zIndex: 10001, background: "#111", color: "#fff", fontSize: 12, borderRadius: 6 }}>{toast}</div>}
     </div>
   );
 }
