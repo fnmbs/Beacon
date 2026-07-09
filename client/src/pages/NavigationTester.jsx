@@ -10,10 +10,10 @@ export default function NavigationTester() {
   const [to, setTo] = useState("");
   const [, setSheetExpanded] = useState(false);
 
-  const { locations, fetchLocations } = useLocationStore();
+  const { locations, fetchAllLocations } = useLocationStore();
   const { findRoute, clearRoute, loading, error, result } = useRouteStore();
 
-  useEffect(() => { fetchLocations(1, 100); }, []);
+  useEffect(() => { fetchAllLocations(); }, []);
 
   const run = async () => { if (!from || !to) return; setSheetExpanded(false); await findRoute(from, to); setSheetExpanded(true); };
   const swap = () => { setFrom(to); setTo(from); clearRoute(); };

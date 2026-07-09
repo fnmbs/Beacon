@@ -10,10 +10,10 @@ export default function Paths() {
   const limit = 5;
 
   const { fetchPaths, paths, totalPaths, totalPathsDistance, totalPages, loading, error, addPath, deletePath } = usePathStore();
-  const { locations, fetchLocations } = useLocationStore();
+  const { locations, fetchAllLocations } = useLocationStore();
 
   useEffect(() => { fetchPaths(page, limit); }, [page]);
-  useEffect(() => { fetchLocations(1, 100); }, []);
+  useEffect(() => { fetchAllLocations(); }, []);
 
   const toast_ = (msg) => { setToast(msg); setTimeout(() => setToast(""), 2200); };
   const save = async (form) => {

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import MapLayout from "../components/MapLayout";
 import useLocationStore from "../store/useLocationStore";
 import usePathStore from "../store/usePathStore";
+import api from "../api/axios";
 
 const haversine = (lat1, lon1, lat2, lon2) => {
   const R = 6371000;
@@ -19,10 +20,21 @@ export default function MapEditor() {
   const [selected, setSelected] = useState([]);
   const [tileStyle, setTileStyle] = useState("map");
 
-  const { locations, fetchLocations } = useLocationStore();
+  const { locations, fetchAllLocations } = useLocationStore();
   const { addPath } = usePathStore();
+  const [allPaths, setAllPaths] = useState([]);
 
-  useEffect(() => { fetchLocations(1, 100); }, []);
+  useEffect(() => { fetchAllLocations(); }, []);
+
+  useEffect(() => {
+    const fetchAllPaths = async () => {
+      try {
+        const res = await api.get("/paths?page=1&limit=1000");
+        if (res.data?.success) setAllPaths(res.data.paths);
+      } catch (_) {}
+    };
+    fetchAllPaths();
+  }, []);
 
   const toast_ = (msg) => { setToast(msg); setTimeout(() => setToast(""), 2200); };
 
@@ -31,7 +43,7 @@ export default function MapEditor() {
       const m = (loc.name || "").match(/^junction (\d+)$/i);
       return m ? Math.max(max, parseInt(m[1], 10)) : max;
     }, 0);
-    setNodeModal({ lat: latlng.lat.toFixed(6), lng: latlng.lng.toFixed(6), defaultName: `junction ${maxNum + 1}` });
+    setNodeModal({ lat: latlng.lat.toFixed(6), lng: latlng.lng.toFixed(6), defaultName: `junction ${maxNum + 1}`, defaultType: "junction" });
   };
 
   const handleMarkerClick = (locId) => {
@@ -64,6 +76,7 @@ export default function MapEditor() {
     try {
       const { addLocation } = useLocationStore.getState();
       await addLocation({ name: form.name, type: form.type, latitude: parseFloat(form.latitude), longitude: parseFloat(form.longitude) });
+      await fetchAllLocations();
       toast_("Node created");
       setNodeModal(null);
     } catch (err) {
@@ -89,6 +102,8 @@ export default function MapEditor() {
   const handleCreatePath = async (form) => {
     try {
       await addPath({ from_location_id: form.fromId, to_location_id: form.toId, distance_meters: parseFloat(form.distance) });
+      const res = await api.get("/paths?page=1&limit=1000");
+      if (res.data?.success) setAllPaths(res.data.paths);
       toast_("Path created");
       setPathModal(null);
     } catch (err) {
@@ -135,6 +150,7 @@ export default function MapEditor() {
           onMapClick={handleMapClick}
           onMarkerClick={handleMarkerClick}
           onDeleteLocation={handleDeleteLocation}
+          connectionLines={allPaths}
         />
       </div>
 
@@ -172,7 +188,7 @@ export default function MapEditor() {
 }
 
 function NodeForm({ latlng, onSave, onClose }) {
-  const [form, setForm] = useState({ name: latlng.defaultName || "", type: "other", latitude: latlng.lat, longitude: latlng.lng });
+  const [form, setForm] = useState({ name: latlng.defaultName || "", type: latlng.defaultType || "other", latitude: latlng.lat, longitude: latlng.lng });
   const h = (e) => setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
 
   return (

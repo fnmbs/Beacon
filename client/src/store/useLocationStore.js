@@ -37,6 +37,21 @@ const useLocationStore = create((set, get) => ({
     }
   },
 
+  fetchAllLocations: async () => {
+    try {
+      set({ loading: true, error: false });
+      const res = await getLocations(1, 999999);
+      if (res.data.locations) {
+        set({ locations: res.data.locations, totalLocations: res.data.totalLocations, loading: false });
+      } else {
+        set({ loading: false });
+      }
+    } catch (err) {
+      console.error("Failed to fetch all locations:", err);
+      set({ error: true, loading: false });
+    }
+  },
+
   addLocation: async (data) => {
     try {
       const res = await addLocationApi(data);

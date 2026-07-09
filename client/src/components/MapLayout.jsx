@@ -13,7 +13,7 @@ L.Icon.Default.mergeOptions({
 
 const CAMPUS = [6.927598384979245, 3.87129667870627];
 
-const TYPE_LABELS = { gate: "G", building: "B", junction: "J", parking: "P", field: "F", other: "·" };
+const TYPE_LABELS = { gate: "G", building: "B", parking: "P", field: "F", other: "·" };
 
 const TILES = {
   map: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
@@ -21,8 +21,12 @@ const TILES = {
   dark: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
 };
 
-function nodeIcon(type) {
-  const label = TYPE_LABELS[type] || "·";
+function nodeIcon(type, name) {
+  let label = TYPE_LABELS[type] || "·";
+  if (type === "junction" && name) {
+    const m = name.match(/\d+/);
+    if (m) label = `J${m[0]}`;
+  }
   return L.divIcon({
     className: "",
     html: `<div style="
@@ -114,15 +118,12 @@ export default function MapLayout({
   onMapClick,
   onDeleteLocation,
   tileStyle: externalTileStyle,
+  connectionLines = [],
 }) {
-  const { locations, loading, fetchLocations, totalLocations } = useLocationStore();
+  const { locations, loading } = useLocationStore();
   const [tileStyle] = useState("map");
 
   const activeTile = externalTileStyle || tileStyle;
-
-  useEffect(() => {
-    fetchLocations(1, 100);
-  }, []);
 
   const routePositions = route?.steps
     ? [
@@ -225,6 +226,31 @@ export default function MapLayout({
           </>
         )}
 
+        {connectionLines.map((conn, i) => {
+          const fromLoc = locations.find(
+            (l) => String(l.id) === String(conn.from_location_id)
+          );
+          const toLoc = locations.find(
+            (l) => String(l.id) === String(conn.to_location_id)
+          );
+          if (!fromLoc || !toLoc) return null;
+          return (
+            <Polyline
+              key={i}
+              positions={[
+                [parseFloat(fromLoc.latitude), parseFloat(fromLoc.longitude)],
+                [parseFloat(toLoc.latitude), parseFloat(toLoc.longitude)],
+              ]}
+              pathOptions={{
+                color: "#999",
+                weight: 2,
+                dashArray: "5 5",
+                opacity: 0.6,
+              }}
+            />
+          );
+        })}
+
         {routeStart && (
           <Marker position={routeStart} icon={endpointIcon("A")}>
             <Popup className="custom-popup">
@@ -266,7 +292,7 @@ export default function MapLayout({
             <Marker
               key={loc.id}
               position={[lat, lng]}
-              icon={nodeIcon(loc.type)}
+              icon={nodeIcon(loc.type, loc.name)}
               eventHandlers={{ click: () => onMarkerClick?.(loc.id) }}
             >
               <Popup className="custom-popup">
