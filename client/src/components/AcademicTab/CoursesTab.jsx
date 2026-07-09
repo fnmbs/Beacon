@@ -24,7 +24,7 @@ export default function CoursesTab() {
 
   const handleAdd = async (form) => {
     try {
-      const payload = { code: form.code, name: form.name, description: form.description, facultyId: form.facultyId, departmentId: form.departmentId, credits: Number(form.credits), semester: form.semester, type: form.type };
+      const payload = { code: form.code, name: form.name, description: form.description || "", facultyId: form.facultyId, departmentId: form.departmentId, credits: Number(form.credits), semester: form.semester, type: form.type };
       if (form.eligibleLevels && form.eligibleLevels.length > 0) payload.eligibleLevels = form.eligibleLevels;
       const course = await addCourse(payload);
       if (form.assignedLecturers.length > 0) { await assignLecturers(course.id, form.assignedLecturers); }

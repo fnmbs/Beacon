@@ -22,20 +22,10 @@ const createCourses = async (req, res) => {
       type,
     } = req.body;
 
-    if (
-      !code ||
-      !name ||
-      !facultyId ||
-      !departmentId ||
-      !semester ||
-      !type ||
-      !description ||
-      !credits
-    ) {
+    if (!code || !name || !facultyId || !departmentId || !semester || !type || !credits) {
       return res.status(400).json({
         success: false,
-        message:
-          "code, name, facultyId, departmentId, credits, semester and type are required",
+        message: "code, name, facultyId, departmentId, credits, semester and type are required",
       });
     }
 
