@@ -4,12 +4,14 @@ import LecturersTab from "../components/AcademicTab/LecturersTab";
 import CoursesTab from "../components/AcademicTab/CoursesTab";
 import DepartmentsTab from "../components/AcademicTab/DepartmentsTab";
 import FacultiesTab from "../components/AcademicTab/FacultiesTab";
+import ScheduleTab from "../components/AcademicTab/ScheduleTab";
 
 const TABS = [
   { id: "Faculties", label: "Faculties" },
   { id: "Departments", label: "Departments" },
   { id: "Lecturers", label: "Lecturers" },
   { id: "Courses", label: "Courses" },
+  { id: "Schedule", label: "Schedule" },
 ];
 
 export default function Academic() {
@@ -44,6 +46,7 @@ export default function Academic() {
         {tab === "Departments" && <DepartmentsTab />}
         {tab === "Lecturers" && <LecturersTab />}
         {tab === "Courses" && <CoursesTab />}
+        {tab === "Schedule" && <ScheduleTab />}
       </div>
     </div>
   );

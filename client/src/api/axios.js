@@ -153,6 +153,11 @@ export const getPathById = (id) => api.get(`/paths/${id}`);
 export const navigateRoute = (fromId, toId) =>
   api.get(`/navigation?from=${fromId}&to=${toId}`);
 
+// Timetable
+export const getAllTimetable = () => api.get("/timetable");
+export const createTimetableEntry = (data) => api.post("/timetable", data);
+export const deleteTimetableEntry = (id) => api.delete(`/timetable/${id}`);
+
 export default api;
 
 //lecturers

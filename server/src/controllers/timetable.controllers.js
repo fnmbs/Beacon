@@ -244,4 +244,26 @@ const downloadTimetable = async (req, res) => {
   }
 };
 
-export { scheduleCourse, getUserTimetable, getTimetableByCourses, downloadTimetable };
+const getAllTimetable = async (req, res) => {
+  try {
+    const entries = await Timetable.getAllTimetableEntries();
+    return res.status(200).json({ success: true, entries });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+const deleteTimetable = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deleted = await Timetable.deleteTimetableEntry(id);
+    if (!deleted) return res.status(404).json({ success: false, message: "Entry not found" });
+    return res.status(200).json({ success: true, message: "Entry deleted", entry: deleted });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+export { scheduleCourse, getUserTimetable, getTimetableByCourses, downloadTimetable, getAllTimetable, deleteTimetable };

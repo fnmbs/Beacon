@@ -40,4 +40,23 @@ const getTimetableByCourseIds = async (courseIds) => {
   return res.rows;
 };
 
-export { checkConflict, scheduleCourse, getTimetableByCourseIds };
+const getAllTimetableEntries = async () => {
+  const res = await pool.query(
+    `SELECT t.*, c.code AS course_code, c.name AS course_name, l.name AS location_name
+     FROM timetable t
+     JOIN courses c ON c.id = t.course_id
+     JOIN locations l ON l.id = t.location_id
+     ORDER BY t.day, t.start_time`,
+  );
+  return res.rows;
+};
+
+const deleteTimetableEntry = async (id) => {
+  const res = await pool.query(
+    `DELETE FROM timetable WHERE id = $1 RETURNING *`,
+    [id],
+  );
+  return res.rows[0] || null;
+};
+
+export { checkConflict, scheduleCourse, getTimetableByCourseIds, getAllTimetableEntries, deleteTimetableEntry };
