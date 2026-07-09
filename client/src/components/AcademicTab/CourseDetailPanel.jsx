@@ -33,12 +33,13 @@ export default function CourseDetailPanel({ course, isNew, onClose, onUpdate, on
   }, [course?.id]);
 
   useEffect(() => { requestAnimationFrame(() => setVisible(true)); }, []);
+  useEffect(() => { if (!faculties || faculties.length === 0) { fetchFaculties(); } }, []);
   useEffect(() => { const loadAssignedLecturers = async () => { if (course?.id) { await fetchAssignedLecturers(course.id); } }; loadAssignedLecturers(); }, [course?.id]);
   useEffect(() => { if (assignedLecturers && assignedLecturers.length > 0) { setForm((prev) => ({ ...prev, assignedLecturers: assignedLecturers.map((l) => l.id) })); } }, [assignedLecturers]);
   useEffect(() => { const fetchDepartmentsOnFacultyChange = async () => { if (editing && form.facultyId) { await fetchDepartmentsByFaculty(form.facultyId); } }; fetchDepartmentsOnFacultyChange(); if (editing && !form.facultyId) { clearDepartments(); } }, [form.facultyId, editing]);
 
   const handleClose = () => { setVisible(false); setTimeout(onClose, 300); };
-  const handleChange = (e) => { setForm((p) => ({ ...p, [e.target.name]: e.target.name === "level" || e.target.name === "credits" ? Number(e.target.value) : e.target.value })); };
+  const handleChange = (e) => { setForm((p) => ({ ...p, [e.target.name]: e.target.name === "credits" ? Number(e.target.value) : e.target.value })); };
   const toggleEligibleLevel = (lvl) => { setForm((p) => ({ ...p, eligibleLevels: p.eligibleLevels && p.eligibleLevels.includes(lvl) ? p.eligibleLevels.filter((x) => x !== lvl) : [...(p.eligibleLevels || []), lvl] })); };
   const handleFacultyChange = async (e) => { const facultyId = e.target.value; setForm((p) => ({ ...p, facultyId, departmentId: null })); if (facultyId) { await fetchDepartmentsByFaculty(facultyId); } };
   const handleDepartmentChange = async (e) => { const departmentId = e.target.value; setForm((p) => ({ ...p, departmentId })); if (departmentId) { clearLecturers(); await fetchLecturersByDepartment(departmentId); } };
