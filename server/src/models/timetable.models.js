@@ -42,11 +42,30 @@ const getTimetableByCourseIds = async (courseIds) => {
 
 const getAllTimetableEntries = async () => {
   const res = await pool.query(
-    `SELECT t.*, c.code AS course_code, c.name AS course_name, l.name AS location_name
+    `SELECT t.*, c.code AS course_code, c.name AS course_name, l.name AS location_name,
+       (SELECT json_agg(json_build_object('id', lec.id, 'name', lec.name))
+        FROM course_lecturers cl
+        JOIN lecturers lec ON lec.id = cl.lecturer_id
+        WHERE cl.course_id = t.course_id) AS lecturers
      FROM timetable t
      JOIN courses c ON c.id = t.course_id
      JOIN locations l ON l.id = t.location_id
      ORDER BY t.day, t.start_time`,
+  );
+  return res.rows;
+};
+
+const getLecturerTimetableEntries = async (lecturerId) => {
+  const res = await pool.query(
+    `SELECT t.*, c.code AS course_code, c.name AS course_name, l.name AS location_name
+     FROM timetable t
+     JOIN courses c ON c.id = t.course_id
+     JOIN locations l ON l.id = t.location_id
+     WHERE t.course_id IN (
+       SELECT cl.course_id FROM course_lecturers cl WHERE cl.lecturer_id = $1
+     )
+     ORDER BY t.day, t.start_time`,
+    [lecturerId],
   );
   return res.rows;
 };
@@ -75,4 +94,4 @@ const checkConflictExcludeId = async (location_id, day, start_time, end_time, ex
   return res.rowCount;
 };
 
-export { checkConflict, scheduleCourse, getTimetableByCourseIds, getAllTimetableEntries, deleteTimetableEntry, updateTimetableEntry, checkConflictExcludeId };
+export { checkConflict, scheduleCourse, getTimetableByCourseIds, getAllTimetableEntries, getLecturerTimetableEntries, deleteTimetableEntry, updateTimetableEntry, checkConflictExcludeId };

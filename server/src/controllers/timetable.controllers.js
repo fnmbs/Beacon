@@ -299,4 +299,18 @@ const updateTimetable = async (req, res) => {
   }
 };
 
-export { scheduleCourse, getUserTimetable, getTimetableByCourses, downloadTimetable, getAllTimetable, deleteTimetable, updateTimetable };
+const getLecturerTimetable = async (req, res) => {
+  try {
+    const { lecturerId } = req.params;
+    if (!lecturerId) {
+      return res.status(400).json({ success: false, message: "lecturerId is required" });
+    }
+    const entries = await Timetable.getLecturerTimetableEntries(lecturerId);
+    return res.status(200).json({ success: true, entries });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+export { scheduleCourse, getUserTimetable, getTimetableByCourses, downloadTimetable, getAllTimetable, deleteTimetable, updateTimetable, getLecturerTimetable };

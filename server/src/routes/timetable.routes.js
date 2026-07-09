@@ -7,6 +7,7 @@ import {
   getAllTimetable,
   deleteTimetable,
   updateTimetable,
+  getLecturerTimetable,
 } from "../controllers/timetable.controllers.js";
 
 const router = express.Router();
@@ -16,6 +17,7 @@ router.post("/", scheduleCourse);
 router.get("/user/:userId", getUserTimetable);
 router.get("/by-courses", getTimetableByCourses);
 router.get("/download/:userId", downloadTimetable);
+router.get("/lecturer/:lecturerId", getLecturerTimetable);
 router.put("/:id", updateTimetable);
 router.delete("/:id", deleteTimetable);
 
