@@ -57,13 +57,6 @@ const scheduleCourse = async (req, res) => {
       });
     }
 
-    if (!(location.type == "academic")) {
-      return res.status(400).json({
-        success: false,
-        message: `A class cant be held here in location with a type of ${location.type}`,
-      });
-    }
-
     const conflict = await Timetable.checkConflict(
       location_id,
       day,
