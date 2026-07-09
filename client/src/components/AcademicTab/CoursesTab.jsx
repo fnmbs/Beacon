@@ -9,13 +9,15 @@ export default function CoursesTab() {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(null);
   const [toast, setToast] = useState("");
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
   const debounceRef = useRef(null);
   const toast_ = (msg) => { setToast(msg); setTimeout(() => setToast(""), 3000); };
 
   const { courses, fetchAllCourses, fetchSearchCourses, loading, totalCourses, addCourse, updateCourse, deleteCourse, assignLecturers, clearAssignedLecturers } = useCourseStore();
   const { clearLecturers } = useLecturerStore();
 
-  useEffect(() => { if (search.trim()) { fetchSearchCourses(search); } else { fetchAllCourses(); } }, [search]);
+  useEffect(() => { if (search.trim()) { fetchSearchCourses(search); } else { fetchAllCourses(); } setPage(1); }, [search]);
 
   const handleSearch = (e) => { const val = e.target.value; setSearch(val); clearTimeout(debounceRef.current); if (val.trim()) { debounceRef.current = setTimeout(() => { fetchSearchCourses(val); }, 300); } else { fetchAllCourses(); } };
 
@@ -72,10 +74,21 @@ export default function CoursesTab() {
           <div className="grid grid-cols-3 gap-3 mb-6">
             {courses.length === 0 ? (
               <div className="col-span-full p-12 text-center rounded-lg" style={{ background: "#fafafa", color: "#999", border: "1px dashed #e5e5e5" }}>No courses found</div>
-            ) : courses.map((course) => <CourseCard key={course.id} course={course} onClick={() => handleSelectCourse(course)} />)}
+            ) : courses.slice((page - 1) * pageSize, page * pageSize).map((course) => <CourseCard key={course.id} course={course} onClick={() => handleSelectCourse(course)} />)}
           </div>
 
-          <div style={{ fontSize: 11, color: "#bbb", marginTop: -12, marginBottom: 16 }}>{totalCourses} course{totalCourses !== 1 ? "s" : ""}</div>
+          <div className="flex items-center justify-between mb-6">
+            <div style={{ fontSize: 11, color: "#bbb" }}>{totalCourses} course{totalCourses !== 1 ? "s" : ""}</div>
+            {totalCourses > pageSize && (
+              <div className="flex items-center gap-1">
+                <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} style={{ padding: "4px 10px", borderRadius: 4, border: "1px solid #e5e5e5", fontSize: 12, background: page === 1 ? "#f5f5f5" : "#fff", color: page === 1 ? "#ccc" : "#111", cursor: page === 1 ? "default" : "pointer" }}>Prev</button>
+                {Array.from({ length: Math.ceil(totalCourses / pageSize) }, (_, i) => i + 1).map(p => (
+                  <button key={p} onClick={() => setPage(p)} style={{ padding: "4px 10px", borderRadius: 4, border: "1px solid #e5e5e5", fontSize: 12, background: p === page ? "#111" : "#fff", color: p === page ? "#fff" : "#111", cursor: "pointer" }}>{p}</button>
+                ))}
+                <button onClick={() => setPage(p => Math.min(Math.ceil(totalCourses / pageSize), p + 1))} disabled={page === Math.ceil(totalCourses / pageSize)} style={{ padding: "4px 10px", borderRadius: 4, border: "1px solid #e5e5e5", fontSize: 12, background: page === Math.ceil(totalCourses / pageSize) ? "#f5f5f5" : "#fff", color: page === Math.ceil(totalCourses / pageSize) ? "#ccc" : "#111", cursor: page === Math.ceil(totalCourses / pageSize) ? "default" : "pointer" }}>Next</button>
+              </div>
+            )}
+          </div>
         </>
       )}
 
