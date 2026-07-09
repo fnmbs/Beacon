@@ -266,4 +266,44 @@ const deleteTimetable = async (req, res) => {
   }
 };
 
-export { scheduleCourse, getUserTimetable, getTimetableByCourses, downloadTimetable, getAllTimetable, deleteTimetable };
+const updateTimetable = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { course_id, location_id, day, start_time, end_time } = req.body;
+
+    if (!location_id || !day || !start_time || !end_time) {
+      return res.status(400).json({ success: false, message: "location_id, day, start_time and end_time are required" });
+    }
+
+    if (!VALID_DAYS.includes(day)) {
+      return res.status(400).json({ success: false, message: `Invalid day. Must be one of: ${VALID_DAYS.join(", ")}` });
+    }
+
+    const [startH, startM] = start_time.split(":").map(Number);
+    const [endH, endM] = end_time.split(":").map(Number);
+    const startMinutes = startH * 60 + startM;
+    const endMinutes = endH * 60 + endM;
+
+    if (startMinutes >= endMinutes) {
+      return res.status(400).json({ success: false, message: "start_time must be before end_time" });
+    }
+
+    const location = await Location.getLocationById(location_id);
+    if (!location) return res.status(404).json({ success: false, message: "Location not found" });
+
+    const conflict = await Timetable.checkConflictExcludeId(location_id, day, start_time, end_time, id);
+    if (conflict > 0) {
+      return res.status(409).json({ success: false, message: "Location is already booked during this time" });
+    }
+
+    const updated = await Timetable.updateTimetableEntry(id, location_id, day, start_time, end_time);
+    if (!updated) return res.status(404).json({ success: false, message: "Entry not found" });
+
+    return res.status(200).json({ success: true, message: "Entry updated", entry: updated });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+export { scheduleCourse, getUserTimetable, getTimetableByCourses, downloadTimetable, getAllTimetable, deleteTimetable, updateTimetable };

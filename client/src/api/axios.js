@@ -157,6 +157,7 @@ export const navigateRoute = (fromId, toId) =>
 export const getAllTimetable = () => api.get("/timetable");
 export const createTimetableEntry = (data) => api.post("/timetable", data);
 export const deleteTimetableEntry = (id) => api.delete(`/timetable/${id}`);
+export const updateTimetableEntry = (id, data) => api.put(`/timetable/${id}`, data);
 
 export default api;
 

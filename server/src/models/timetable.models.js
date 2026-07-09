@@ -59,4 +59,20 @@ const deleteTimetableEntry = async (id) => {
   return res.rows[0] || null;
 };
 
-export { checkConflict, scheduleCourse, getTimetableByCourseIds, getAllTimetableEntries, deleteTimetableEntry };
+const updateTimetableEntry = async (id, location_id, day, start_time, end_time) => {
+  const res = await pool.query(
+    `UPDATE timetable SET location_id = $1, day = $2, start_time = $3, end_time = $4 WHERE id = $5 RETURNING *`,
+    [location_id, day, start_time, end_time, id],
+  );
+  return res.rows[0] || null;
+};
+
+const checkConflictExcludeId = async (location_id, day, start_time, end_time, exclude_id) => {
+  const res = await pool.query(
+    `SELECT 1 FROM timetable WHERE location_id = $1 AND day = $2 AND id != $5 AND NOT ($3 >= end_time OR $4 <= start_time)`,
+    [location_id, day, start_time, end_time, exclude_id],
+  );
+  return res.rowCount;
+};
+
+export { checkConflict, scheduleCourse, getTimetableByCourseIds, getAllTimetableEntries, deleteTimetableEntry, updateTimetableEntry, checkConflictExcludeId };

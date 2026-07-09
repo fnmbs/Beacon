@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getAllCourses, getAllTimetable, createTimetableEntry, deleteTimetableEntry } from "../../api/axios";
+import { getAllCourses, getAllTimetable, createTimetableEntry, updateTimetableEntry, deleteTimetableEntry } from "../../api/axios";
 import useLocationStore from "../../store/useLocationStore";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -8,7 +8,8 @@ export default function ScheduleTab() {
   const [courses, setCourses] = useState([]);
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [form, setForm] = useState({ course_id: "", location_id: "", day: "Monday", start_time: "08:00", end_time: "09:00" });
+  const [form, setForm] = useState({ course_id: "", location_id: "", day: "Monday", start_time: "", end_time: "" });
+  const [editingId, setEditingId] = useState(null);
   const [toast, setToast] = useState("");
   const { locations, fetchAllLocations } = useLocationStore();
 
@@ -34,19 +35,32 @@ export default function ScheduleTab() {
 
   const handleChange = (e) => setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
 
-  const handleCreate = async (e) => {
+  const resetForm = () => { setEditingId(null); setForm({ course_id: "", location_id: "", day: "Monday", start_time: "", end_time: "" }); };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.course_id || !form.location_id) { toast_("Select a course and location"); return; }
+    if (!form.start_time || !form.end_time) { toast_("Set start and end time"); return; }
     try {
-      await createTimetableEntry(form);
-      toast_("Scheduled");
-      setForm((p) => ({ ...p, start_time: "08:00", end_time: "09:00" }));
+      if (editingId) {
+        await updateTimetableEntry(editingId, form);
+        toast_("Entry updated");
+      } else {
+        await createTimetableEntry(form);
+        toast_("Scheduled");
+      }
+      resetForm();
       const res = await getAllTimetable();
       if (res.data?.entries) setEntries(res.data.entries);
     } catch (err) {
-      const msg = err?.response?.data?.message || err?.response?.data?.error || "Failed to schedule";
+      const msg = err?.response?.data?.message || err?.response?.data?.error || "Failed to save schedule";
       toast_(msg);
     }
+  };
+
+  const handleEdit = (entry) => {
+    setEditingId(entry.id);
+    setForm({ course_id: entry.course_id, location_id: entry.location_id, day: entry.day, start_time: entry.start_time?.slice(0, 5) || "", end_time: entry.end_time?.slice(0, 5) || "" });
   };
 
   const handleDelete = async (id) => {
@@ -54,6 +68,7 @@ export default function ScheduleTab() {
     try {
       await deleteTimetableEntry(id);
       setEntries((prev) => prev.filter((e) => e.id !== id));
+      if (editingId === id) resetForm();
       toast_("Entry removed");
     } catch (_) { toast_("Failed to delete"); }
   };
@@ -72,8 +87,11 @@ export default function ScheduleTab() {
   return (
     <div>
       <div className="mb-6 p-5 rounded-lg" style={{ background: "#fff", border: "1px solid #e5e5e5" }}>
-        <h3 style={{ fontSize: 13, fontWeight: 600, color: "#111", marginBottom: 14 }}>New Schedule Entry</h3>
-        <form onSubmit={handleCreate} className="flex flex-wrap items-end gap-3">
+        <div className="flex items-center justify-between mb-3">
+          <h3 style={{ fontSize: 13, fontWeight: 600, color: "#111" }}>{editingId ? "Edit Schedule Entry" : "New Schedule Entry"}</h3>
+          {editingId && <button type="button" onClick={resetForm} style={{ fontSize: 11, color: "#999", background: "none", border: "none", cursor: "pointer", textDecoration: "underline" }}>Cancel</button>}
+        </div>
+        <form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-3">
           <div style={{ minWidth: 180, flex: 1 }}>
             <label style={{ display: "block", fontSize: 10, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.08em", color: "#999", marginBottom: 4 }}>Course</label>
             <select name="course_id" value={form.course_id} onChange={handleChange}
@@ -98,18 +116,18 @@ export default function ScheduleTab() {
             </select>
           </div>
           <div style={{ minWidth: 100 }}>
-            <label style={{ display: "block", fontSize: 10, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.08em", color: "#999", marginBottom: 4 }}>Start</label>
-            <input type="time" name="start_time" value={form.start_time} onChange={handleChange}
+            <label style={{ display: "block", fontSize: 10, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.08em", color: "#999", marginBottom: 4 }}>Start (HH:MM)</label>
+            <input type="text" name="start_time" value={form.start_time} onChange={handleChange} placeholder="08:00" maxLength={5}
               style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: "1px solid #e5e5e5", fontSize: 13, color: "#111", background: "#fff", outline: "none" }} />
           </div>
           <div style={{ minWidth: 100 }}>
-            <label style={{ display: "block", fontSize: 10, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.08em", color: "#999", marginBottom: 4 }}>End</label>
-            <input type="time" name="end_time" value={form.end_time} onChange={handleChange}
+            <label style={{ display: "block", fontSize: 10, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.08em", color: "#999", marginBottom: 4 }}>End (HH:MM)</label>
+            <input type="text" name="end_time" value={form.end_time} onChange={handleChange} placeholder="09:00" maxLength={5}
               style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: "1px solid #e5e5e5", fontSize: 13, color: "#111", background: "#fff", outline: "none" }} />
           </div>
           <button type="submit"
             style={{ padding: "8px 20px", borderRadius: 6, border: "none", fontSize: 12, fontWeight: 500, color: "#fff", background: "#111", cursor: "pointer", height: 37 }}>
-            Schedule
+            {editingId ? "Update" : "Schedule"}
           </button>
         </form>
       </div>
@@ -136,9 +154,14 @@ export default function ScheduleTab() {
                         <span style={{ fontWeight: 500, color: "#111" }}>{entry.course_code}</span>
                         <span style={{ color: "#888", marginLeft: 6 }}>{entry.course_name}</span>
                       </div>
-                      <button onClick={() => handleDelete(entry.id)}
-                        style={{ background: "none", border: "none", cursor: "pointer", color: "#ccc", fontSize: 13, padding: "2px 4px" }}
-                        title="Remove">✕</button>
+                      <div className="flex items-center gap-1">
+                        <button onClick={() => handleEdit(entry)}
+                          style={{ background: "none", border: "none", cursor: "pointer", color: "#bbb", fontSize: 12, padding: "2px 4px" }}
+                          title="Edit">✎</button>
+                        <button onClick={() => handleDelete(entry.id)}
+                          style={{ background: "none", border: "none", cursor: "pointer", color: "#ccc", fontSize: 13, padding: "2px 4px" }}
+                          title="Remove">✕</button>
+                      </div>
                     </div>
                     <div style={{ color: "#999", marginTop: 3 }}>
                       {entry.start_time?.slice(0, 5)} – {entry.end_time?.slice(0, 5)}
