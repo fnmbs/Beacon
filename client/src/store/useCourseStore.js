@@ -17,6 +17,21 @@ const useCourseStore = create((set) => ({
   loading: false,
   error: null,
 
+  fetchAllCourses: async () => {
+    set({ loading: true, error: null });
+    try {
+      const res = await getAllCourses(1, 9999);
+      if (res.data.courses) {
+        set({ courses: res.data.courses, totalCourses: res.data.totalCourses, loading: false });
+      } else {
+        set({ loading: false });
+      }
+    } catch (error) {
+      console.error("Failed to fetch courses:", error);
+      set({ error: "Failed to fetch courses", loading: false });
+    }
+  },
+
   fetchCourses: async (page, limit) => {
     set({ loading: true, error: null });
     try {

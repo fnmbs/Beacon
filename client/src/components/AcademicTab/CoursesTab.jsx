@@ -8,17 +8,14 @@ import useLecturerStore from "../../store/useLecturerStore";
 export default function CoursesTab() {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(null);
-  const [page, setPage] = useState(1);
   const debounceRef = useRef(null);
-  const limit = 10;
 
-  const { courses, fetchCourses, fetchSearchCourses, loading, totalCourses, addCourse, updateCourse, deleteCourse, assignLecturers, clearAssignedLecturers } = useCourseStore();
+  const { courses, fetchAllCourses, fetchSearchCourses, loading, totalCourses, addCourse, updateCourse, deleteCourse, assignLecturers, clearAssignedLecturers } = useCourseStore();
   const { clearLecturers } = useLecturerStore();
-  const totalPages = totalCourses > 0 ? Math.ceil(totalCourses / limit) : 1;
 
-  useEffect(() => { if (search.trim()) { fetchSearchCourses(search); } else { fetchCourses(page, limit); } }, [page, search]);
+  useEffect(() => { if (search.trim()) { fetchSearchCourses(search); } else { fetchAllCourses(); } }, [search]);
 
-  const handleSearch = (e) => { const val = e.target.value; setSearch(val); clearTimeout(debounceRef.current); if (val.trim()) { debounceRef.current = setTimeout(() => { fetchSearchCourses(val); setPage(1); }, 300); } else { fetchCourses(1, limit); setPage(1); } };
+  const handleSearch = (e) => { const val = e.target.value; setSearch(val); clearTimeout(debounceRef.current); if (val.trim()) { debounceRef.current = setTimeout(() => { fetchSearchCourses(val); }, 300); } else { fetchAllCourses(); } };
 
   const handleSelectCourse = (course) => { clearLecturers(); clearAssignedLecturers(); setSelected(null); setTimeout(() => setSelected(course), 0); };
   const handleNew = () => { clearLecturers(); clearAssignedLecturers(); setSelected(null); setTimeout(() => { setSelected({ id: null, name: "", code: "", description: "", type: "compulsory", level: 100, credits: 1, semester: "harmattan", faculty_id: null, department_id: null, lecturer_ids: [] }); }, 0); };
@@ -30,7 +27,7 @@ export default function CoursesTab() {
       const course = await addCourse(payload);
       if (form.assignedLecturers.length > 0) { await assignLecturers(course.id, form.assignedLecturers); }
       setSelected(null);
-      await fetchCourses(page, limit);
+      await fetchAllCourses();
     }
     catch (error) { console.error("Failed to add course:", error); }
   };
@@ -41,11 +38,11 @@ export default function CoursesTab() {
       await updateCourse(id, payload);
       if (form.assignedLecturers.length > 0) { await assignLecturers(id, form.assignedLecturers); }
       setSelected(null);
-      await fetchCourses(page, limit);
+      await fetchAllCourses();
     }
     catch (error) { console.error("Failed to update course:", error); }
   };
-  const handleDelete = async (id) => { try { await deleteCourse(id); setSelected(null); await fetchCourses(page, limit); } catch (error) { console.error("Failed to delete course:", error); } };
+  const handleDelete = async (id) => { try { await deleteCourse(id); setSelected(null); await fetchAllCourses(); } catch (error) { console.error("Failed to delete course:", error); } };
 
   return (
     <div>
@@ -72,15 +69,7 @@ export default function CoursesTab() {
             ) : courses.map((course) => <CourseCard key={course.id} course={course} onClick={() => handleSelectCourse(course)} />)}
           </div>
 
-          {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2">
-              <button onClick={() => setPage(Math.max(1, page - 1))} disabled={page === 1}
-                style={{ padding: "6px 14px", borderRadius: 6, fontSize: 12, border: "1px solid #e5e5e5", color: "#111", background: "#fff", cursor: "pointer", opacity: page === 1 ? 0.4 : 1 }}>← Prev</button>
-              <span style={{ fontSize: 12, color: "#888" }}>Page {page} of {totalPages}</span>
-              <button onClick={() => setPage(Math.min(totalPages, page + 1))} disabled={page === totalPages}
-                style={{ padding: "6px 14px", borderRadius: 6, fontSize: 12, border: "1px solid #e5e5e5", color: "#111", background: "#fff", cursor: "pointer", opacity: page === totalPages ? 0.4 : 1 }}>Next →</button>
-            </div>
-          )}
+          <div style={{ fontSize: 11, color: "#bbb", marginTop: -12, marginBottom: 16 }}>{totalCourses} course{totalCourses !== 1 ? "s" : ""}</div>
         </>
       )}
 
