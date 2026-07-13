@@ -164,7 +164,9 @@ const getEligibleCoursesByDeptAndLevel = async (departmentId, level) => {
      FROM courses c
      JOIN departments d ON d.id = c.department_id
      JOIN faculties f ON f.id = d.faculty_id
-     WHERE c.department_id = $1 AND ($2 = ANY(c.eligible_levels) OR c.level = $2)
+     WHERE c.department_id = $1
+       AND c.is_active = true
+       AND ($2 = ANY(COALESCE(c.eligible_levels, ARRAY[]::int[])) OR c.level = $2)
      ORDER BY c.name ASC`,
     [departmentId, level],
   );

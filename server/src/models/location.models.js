@@ -105,6 +105,7 @@ export const getTimetableForLocation = async (id, day) => {
         t.*,
         c.code AS course_code,
         c.name AS course_name,
+        c.credits,
         d.name AS department_name,
         f.name AS faculty_name
        FROM timetable t

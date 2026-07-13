@@ -42,7 +42,7 @@ const getTimetableByCourseIds = async (courseIds) => {
 
 const getAllTimetableEntries = async () => {
   const res = await pool.query(
-    `SELECT t.*, c.code AS course_code, c.name AS course_name, l.name AS location_name,
+    `SELECT t.*, c.code AS course_code, c.name AS course_name, c.credits, l.name AS location_name,
        (SELECT json_agg(json_build_object('id', lec.id, 'name', lec.name))
         FROM course_lecturers cl
         JOIN lecturers lec ON lec.id = cl.lecturer_id
@@ -57,7 +57,7 @@ const getAllTimetableEntries = async () => {
 
 const getLecturerTimetableEntries = async (lecturerId) => {
   const res = await pool.query(
-    `SELECT t.*, c.code AS course_code, c.name AS course_name, l.name AS location_name
+    `SELECT t.*, c.code AS course_code, c.name AS course_name, c.credits, l.name AS location_name
      FROM timetable t
      JOIN courses c ON c.id = t.course_id
      JOIN locations l ON l.id = t.location_id
