@@ -61,6 +61,17 @@ const NAV = [
     ),
   },
   {
+    to: "/campus-boundary",
+    label: "Campus Boundary",
+    icon: (
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-4 h-4">
+        <path d="M2.5 4.5 8 2l5.5 2.5v7L8 14l-5.5-2.5z" />
+        <path d="M8 2v12" />
+        <path d="M2.5 4.5 8 7l5.5-2.5" />
+      </svg>
+    ),
+  },
+  {
     to: "/academics",
     label: "Academics",
     icon: (

@@ -153,6 +153,10 @@ export const getPathById = (id) => api.get(`/paths/${id}`);
 export const navigateRoute = (fromId, toId) =>
   api.get(`/navigation?from=${fromId}&to=${toId}`);
 
+// Campus boundary
+export const getCampusBoundary = () => api.get("/campus/boundary");
+export const updateCampusBoundary = (data) => api.put("/campus/boundary", data);
+
 // Timetable
 export const getAllTimetable = () => api.get("/timetable");
 export const createTimetableEntry = (data) => api.post("/timetable", data);
