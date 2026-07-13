@@ -242,6 +242,25 @@ const createTables = async () => {
 
     console.log("timetable created successfully");
 
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS campus_boundary (
+        id INT PRIMARY KEY DEFAULT 1 CHECK (id = 1),
+        name VARCHAR(255) NOT NULL DEFAULT 'OOU Campus',
+        boundary JSONB NOT NULL DEFAULT '[]'::jsonb,
+        buffer_meters INT NOT NULL DEFAULT 150,
+        gate_location_id UUID REFERENCES locations(id) ON DELETE SET NULL,
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      );
+    `);
+
+    await pool.query(`
+      INSERT INTO campus_boundary (id, name, boundary, buffer_meters)
+      VALUES (1, 'OOU Campus', '[]'::jsonb, 150)
+      ON CONFLICT (id) DO NOTHING;
+    `);
+
+    console.log("campus boundary created successfully");
+
     console.log("✅ notes table created");
 
     await pool.query(`
