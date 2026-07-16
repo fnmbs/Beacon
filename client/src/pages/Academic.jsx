@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useTheme } from "../context/ThemeContext";
 import LecturersTab from "../components/AcademicTab/LecturersTab";
 import CoursesTab from "../components/AcademicTab/CoursesTab";
 import DepartmentsTab from "../components/AcademicTab/DepartmentsTab";
@@ -16,32 +15,27 @@ const TABS = [
 
 export default function Academic() {
   const [tab, setTab] = useState("Faculties");
-  const theme = useTheme();
 
   return (
-    <div className="flex flex-col min-h-screen" style={{ background: theme.bg.primary, color: theme.text.primary }}>
-      <div style={{ background: "#1a1a1a" }}>
-        <div className="px-8 pt-5 pb-1">
-          <h1 style={{ fontSize: 18, fontWeight: 600, letterSpacing: "-0.03em", color: "#fff" }}>Academic</h1>
-          <p style={{ fontSize: 12, color: "#888", marginTop: 2 }}>Manage faculties, departments, lecturers, and courses</p>
+    <div className="flex flex-col min-h-screen" style={{ fontFamily: "system-ui, sans-serif", background: "#F5F6F4" }}>
+      <header className="flex items-center justify-between px-8 shrink-0" style={{ height: "48px", background: "#FFFFFF", borderBottom: "1px solid #E5E7EB" }}>
+        <div className="flex items-center gap-3">
+          <span style={{ fontSize: 13, fontWeight: 600, color: "#111111" }}>Academic</span>
         </div>
-
-        <nav className="flex gap-0.5 px-6 pt-4 pb-3">
+        <nav className="flex gap-0.5">
           {TABS.map((t) => {
             const active = tab === t.id;
             return (
               <button key={t.id} onClick={() => setTab(t.id)}
-                style={{ padding: "7px 14px", fontSize: 13, fontWeight: 400, color: active ? "#fff" : "#999", background: active ? "rgba(255,255,255,0.1)" : "transparent", border: "none", borderRadius: 6, cursor: "pointer", transition: "all 0.15s ease" }}
-                onMouseEnter={(e) => { if (!active) { e.target.style.background = "rgba(255,255,255,0.06)"; e.target.style.color = "#e5e5e5"; } }}
-                onMouseLeave={(e) => { if (!active) { e.target.style.background = "transparent"; e.target.style.color = "#999"; } }}>
+                style={{ padding: "4px 12px", fontSize: 12, fontWeight: active ? 600 : 400, color: active ? "#111" : "#6B7280", background: active ? "#F3F4F6" : "transparent", border: "none", borderRadius: 6, cursor: "pointer" }}>
                 {t.label}
               </button>
             );
           })}
         </nav>
-      </div>
+      </header>
 
-      <div className="flex-1 px-8 py-6">
+      <div className="flex-1 p-8">
         {tab === "Faculties" && <FacultiesTab />}
         {tab === "Departments" && <DepartmentsTab />}
         {tab === "Lecturers" && <LecturersTab />}
