@@ -190,16 +190,7 @@ export default function Layout() {
         <main className="flex-1 flex flex-col min-h-screen" style={{ marginLeft: "220px" }}>
           <div className="md:hidden" style={{ height: "48px" }} />
 
-          {/* Email Verification Banner */}
-          {user && !user.isEmailVerified && (
-            <div style={{ background: "#FFF7ED", borderBottom: "1px solid #FED7AA", padding: "10px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 12 }}>
-              <span style={{ color: "#111111" }}>Please verify your email address. Check your inbox for a verification link.</span>
-              <button onClick={async () => { try { await authAPI.resendVerificationEmail(); alert("Verification email resent!"); } catch { alert("Failed to resend email"); } }}
-                style={{ background: "none", border: "none", color: "#0F766E", cursor: "pointer", fontSize: 12, fontWeight: 600, textDecoration: "underline" }}>
-                Resend
-              </button>
-            </div>
-          )}
+
 
           <Outlet />
         </main>
