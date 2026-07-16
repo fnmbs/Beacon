@@ -46,7 +46,7 @@ export default function CourseDetailPanel({ course, isNew, onClose, onUpdate, on
   const handleAssignLecturer = (lecturerId) => { setForm((p) => ({ ...p, assignedLecturers: p.assignedLecturers.includes(lecturerId) ? p.assignedLecturers.filter((id) => id !== lecturerId) : [...p.assignedLecturers, lecturerId] })); };
   const handleSave = async () => { if (isNew) { await onAdd(form); handleClose(); } else if (course?.id) { await onUpdate(course.id, form); setEditing(false); } };
   const handleDelete = async () => { if (course?.id && window.confirm("Are you sure you want to delete this course?")) { await onDelete(course.id); handleClose(); } };
-  const handleEditMode = async () => { setEditing(true); if (!faculties || faculties.length === 0) { await fetchFaculties(); } if (course?.faculty_id) { await fetchDepartmentsByFaculty(course.faculty_id); } if (course?.department_id) { await fetchLecturersByDepartment(course.department_id); } };
+  const handleEditMode = async () => { setEditing(true);     if (!faculties || faculties.length === 0) { await fetchFaculties(1, 100); } if (course?.faculty_id) { await fetchDepartmentsByFaculty(course.faculty_id); } if (course?.department_id) { await fetchLecturersByDepartment(course.department_id); } };
 
   return (
     <>

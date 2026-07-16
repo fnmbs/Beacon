@@ -41,8 +41,8 @@ export default function CoursesTab() {
   };
   const handleUpdate = async (id, form) => {
     try {
-      const payload = { code: form.code, name: form.name, description: form.description, faculty_id: form.facultyId, department_id: form.departmentId, credits: Number(form.credits), semester: form.semester, type: form.type, is_active: true };
-      if (form.eligibleLevels && form.eligibleLevels.length > 0) payload.eligibleLevels = form.eligibleLevels;
+      const payload = { code: form.code, name: form.name, description: form.description || "", faculty_id: form.facultyId, department_id: form.departmentId, credits: Number(form.credits), semester: form.semester, type: form.type, is_active: true };
+      if (form.eligibleLevels && form.eligibleLevels.length > 0) { payload.eligibleLevels = form.eligibleLevels; } else if (form.level) { payload.level = form.level; }
       await updateCourse(id, payload);
       if (form.assignedLecturers.length > 0) { await assignLecturers(id, form.assignedLecturers); }
       setSelected(null);
