@@ -24,7 +24,6 @@ export default function AdminLogin() {
       }
       const response = await adminAuthAPI.login(email, password);
       const { data } = response.data;
-      // Admin endpoints return token and admin object (no refresh token)
       login(data.admin || data.user, data.token, data.refreshToken);
       navigate("/");
     } catch (err) {
@@ -43,27 +42,29 @@ export default function AdminLogin() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "#fff",
+        background: "#F5F6F4",
+        fontFamily: "system-ui, sans-serif",
       }}
     >
-      <div style={{ width: "100%", maxWidth: "340px", padding: "0 20px" }}>
-        <div style={{ textAlign: "center", marginBottom: 40 }}>
+      <div style={{ width: "100%", maxWidth: "420px", padding: "0 20px" }}>
+        <div style={{ textAlign: "center", marginBottom: 32 }}>
           <div
             style={{
               fontSize: 22,
-              fontWeight: 600,
-              color: "#111",
+              fontWeight: 900,
+              color: "#0F766E",
               letterSpacing: "-0.03em",
-              marginBottom: 6,
+              marginBottom: 4,
             }}
           >
-            MAPU — Admin
+            MAPU
           </div>
           <div
             style={{
               fontSize: 12,
-              color: "#999",
-              letterSpacing: "0.06em",
+              fontWeight: 600,
+              color: "#111111",
+              letterSpacing: "0.05em",
               textTransform: "uppercase",
             }}
           >
@@ -71,121 +72,103 @@ export default function AdminLogin() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: 18 }}>
-            <label
-              style={{
-                display: "block",
-                fontSize: 11,
-                fontWeight: 500,
-                color: "#111",
-                marginBottom: 6,
-              }}
-            >
-              Email
-            </label>
-            <input
-              type="email"
-              placeholder="admin@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+        <div style={{
+          background: "#FFFFFF",
+          border: "1px solid #E1E5E1",
+          borderRadius: 18,
+          padding: 24,
+        }}>
+          <form onSubmit={handleSubmit}>
+            <div style={{ marginBottom: 18 }}>
+              <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#111111", marginBottom: 8, fontFamily: "system-ui, sans-serif" }}>
+                Email
+              </label>
+              <input
+                type="email"
+                placeholder="admin@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={loading}
+                style={{
+                  width: "100%",
+                  height: 48,
+                  padding: "0 16px",
+                  border: "1px solid #D8DEDA",
+                  borderRadius: 12,
+                  fontSize: 15,
+                  color: "#111111",
+                  outline: "none",
+                  fontFamily: "system-ui, sans-serif",
+                  boxSizing: "border-box",
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: 18 }}>
+              <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#111111", marginBottom: 8, fontFamily: "system-ui, sans-serif" }}>
+                Password
+              </label>
+              <input
+                type="password"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={loading}
+                style={{
+                  width: "100%",
+                  height: 48,
+                  padding: "0 16px",
+                  border: "1px solid #D8DEDA",
+                  borderRadius: 12,
+                  fontSize: 15,
+                  color: "#111111",
+                  outline: "none",
+                  fontFamily: "system-ui, sans-serif",
+                  boxSizing: "border-box",
+                }}
+              />
+            </div>
+
+            {error && (
+              <span style={{ display: "block", fontSize: 12, color: "#FF3B30", marginBottom: 12, fontFamily: "system-ui, sans-serif" }}>
+                {error}
+              </span>
+            )}
+
+            <button
+              type="submit"
               disabled={loading}
               style={{
                 width: "100%",
-                padding: "10px 12px",
-                border: "1px solid #e0e0e0",
-                borderRadius: 6,
-                fontSize: 13,
-                color: "#111",
-                outline: "none",
-                transition: "border-color 0.15s",
+                height: 56,
+                background: "#111111",
+                color: "#FFFFFF",
+                border: "none",
+                borderRadius: 14,
+                fontSize: 16,
+                fontWeight: 700,
+                cursor: "pointer",
+                fontFamily: "system-ui, sans-serif",
+                opacity: loading ? 0.7 : 1,
+                transition: "opacity 0.15s",
               }}
-              onFocus={(e) => (e.target.style.borderColor = "#111")}
-              onBlur={(e) => (e.target.style.borderColor = "#e0e0e0")}
-            />
-          </div>
-
-          <div style={{ marginBottom: 18 }}>
-            <label
-              style={{
-                display: "block",
-                fontSize: 11,
-                fontWeight: 500,
-                color: "#111",
-                marginBottom: 6,
+              onMouseEnter={(e) => {
+                if (!loading) e.target.style.opacity = "0.85";
+              }}
+              onMouseLeave={(e) => {
+                if (!loading) e.target.style.opacity = "1";
               }}
             >
-              Password
-            </label>
-            <input
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={loading}
-              style={{
-                width: "100%",
-                padding: "10px 12px",
-                border: "1px solid #e0e0e0",
-                borderRadius: 6,
-                fontSize: 13,
-                color: "#111",
-                outline: "none",
-                transition: "border-color 0.15s",
-              }}
-              onFocus={(e) => (e.target.style.borderColor = "#111")}
-              onBlur={(e) => (e.target.style.borderColor = "#e0e0e0")}
-            />
-          </div>
+              {loading ? "Signing in…" : "Sign in"}
+            </button>
+          </form>
+        </div>
 
-          {error && (
-            <span
-              style={{
-                display: "block",
-                fontSize: 12,
-                color: "#d32f2f",
-                marginBottom: 12,
-              }}
-            >
-              {error}
-            </span>
-          )}
+        <div style={{ height: 1, background: "#E5E7EB", margin: "24px 0" }} />
 
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              width: "100%",
-              padding: "10px",
-              background: "#111",
-              color: "#fff",
-              border: "none",
-              borderRadius: 6,
-              fontSize: 12,
-              fontWeight: 500,
-              cursor: "pointer",
-              transition: "opacity 0.15s",
-              opacity: loading ? 0.6 : 1,
-            }}
-            onMouseEnter={(e) => {
-              if (!loading) e.target.style.opacity = "0.8";
-            }}
-            onMouseLeave={(e) => {
-              if (!loading) e.target.style.opacity = "1";
-            }}
-          >
-            {loading ? "Signing in…" : "Sign in"}
-          </button>
-        </form>
-
-        <div style={{ height: 1, background: "#eee", margin: "24px 0" }} />
-
-        <div style={{ textAlign: "center", fontSize: 12, color: "#888" }}>
+        <div style={{ textAlign: "center", fontSize: 13, color: "#6B7280", fontFamily: "system-ui, sans-serif" }}>
           Back to{" "}
-          <Link
-            to="/login"
-            style={{ color: "#111", fontWeight: 500, textDecoration: "none" }}
-          >
+          <Link to="/login" style={{ color: "#0F766E", fontWeight: 600, textDecoration: "none", fontFamily: "system-ui, sans-serif" }}>
             User Login
           </Link>
         </div>

@@ -409,7 +409,6 @@ const updateCourse = async (req, res) => {
       !department_id ||
       !semester ||
       !type ||
-      !description ||
       !credits ||
       typeof is_active === "undefined"
     ) {

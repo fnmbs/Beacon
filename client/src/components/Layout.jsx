@@ -102,46 +102,49 @@ export default function Layout() {
           gap: 10px;
           padding: 8px 12px;
           text-decoration: none;
-          color: #999;
+          color: #6B7280;
           font-size: 13px;
-          font-weight: 400;
-          border-radius: 6px;
+          font-family: system-ui, sans-serif;
+          font-weight: 500;
+          border-radius: 8px;
           transition: all 0.15s ease;
         }
         .sidebar-link:hover {
-          background: rgba(255,255,255,0.06);
-          color: #e5e5e5;
+          background: #F3F4F6;
+          color: #111111;
         }
         .sidebar-link.active {
-          background: rgba(255,255,255,0.1);
-          color: #fff;
+          background: #EAF7F4;
+          color: #0F766E;
         }
         .sidebar-label {
           font-size: 10px;
-          font-weight: 500;
-          letter-spacing: 0.08em;
+          font-weight: 700;
+          letter-spacing: 0.05em;
           text-transform: uppercase;
-          color: #555;
+          color: #9CA3AF;
+          font-family: system-ui, sans-serif;
         }
       `}</style>
 
-      <div className="flex h-full min-h-screen bg-[#fff] text-[#111]">
+      <div className="flex h-full min-h-screen" style={{ background: "#F5F6F4", color: "#111111", fontFamily: "system-ui, sans-serif" }}>
         {/* MOBILE TOP BAR */}
-        <div className="md:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4" style={{ height: "48px", background: "#fff", borderBottom: "1px solid #e5e5e5" }}>
+        <div className="md:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4" style={{ height: "48px", background: "#FFFFFF", borderBottom: "1px solid #E5E7EB" }}>
           <button onClick={() => setOpen(true)} className="flex flex-col gap-1 p-1" aria-label="Open menu">
             <span style={{ display: "block", width: "18px", height: "1.5px", background: "#111" }} />
             <span style={{ display: "block", width: "12px", height: "1.5px", background: "#111" }} />
           </button>
-          <span style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.02em" }}>MAPU</span>
+          <span style={{ fontSize: "14px", fontWeight: 700, letterSpacing: "-0.02em" }}>MAPU</span>
           <div style={{ width: "26px" }} />
         </div>
 
         {/* SIDEBAR */}
         <aside className={`fixed inset-y-0 left-0 flex flex-col z-50 transform transition-transform duration-200 ease-in-out ${open ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
-          style={{ width: "220px", background: "#1a1a1a" }}>
+          style={{ width: "220px", background: "#FFFFFF", borderRight: "1px solid #E5E7EB" }}>
           {/* Logo */}
-          <div className="flex items-center px-5" style={{ height: "48px", borderBottom: "1px solid #2a2a2a" }}>
-            <span style={{ fontSize: "15px", fontWeight: 600, color: "#fff", letterSpacing: "-0.02em" }}>MAPU</span>
+          <div className="flex items-center px-5" style={{ height: "48px", borderBottom: "1px solid #E5E7EB" }}>
+            <span style={{ fontSize: "15px", fontWeight: 800, color: "#0F766E" }}>MAPU</span>
+            <span style={{ fontSize: "10px", fontWeight: 700, color: "#9CA3AF", marginLeft: 6, marginTop: 2 }}>ADMIN</span>
           </div>
 
           <div className="px-4 pt-6 pb-2">
@@ -157,22 +160,22 @@ export default function Layout() {
                 onClick={() => setOpen(false)}
                 className="sidebar-link"
               >
-                <span style={{ opacity: 0.7, lineHeight: 0, flexShrink: 0 }}>{item.icon}</span>
+                <span style={{ opacity: 0.6, lineHeight: 0, flexShrink: 0 }}>{item.icon}</span>
                 {item.label}
               </NavLink>
             ))}
           </nav>
 
           {/* Footer */}
-          <div className="px-4 py-3" style={{ borderTop: "1px solid #2a2a2a" }}>
+          <div className="px-4 py-3" style={{ borderTop: "1px solid #E5E7EB" }}>
             <span className="sidebar-label">Account</span>
             {user && (
               <div className="mt-3">
-                <div style={{ fontSize: 12, fontWeight: 500, color: "#ccc", marginBottom: 8 }}>{user.fullName}</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: "#111111", marginBottom: 8, fontFamily: "system-ui, sans-serif" }}>{user.fullName}</div>
                 <button onClick={handleLogout} className="w-full text-left"
-                  style={{ padding: "6px 10px", fontSize: 11, color: "#777", background: "transparent", border: "1px solid #333", borderRadius: 4, cursor: "pointer", transition: "all 0.15s" }}
-                  onMouseEnter={(e) => { e.target.style.background = "rgba(255,255,255,0.05)"; e.target.style.color = "#ccc" }}
-                  onMouseLeave={(e) => { e.target.style.background = "transparent"; e.target.style.color = "#777" }}>
+                  style={{ padding: "6px 12px", fontSize: 12, fontWeight: 500, color: "#9CA3AF", background: "transparent", border: "1px solid #E5E7EB", borderRadius: 8, cursor: "pointer", transition: "all 0.15s" }}
+                  onMouseEnter={(e) => { e.target.style.background = "#F9FAFB"; e.target.style.color = "#111111" }}
+                  onMouseLeave={(e) => { e.target.style.background = "transparent"; e.target.style.color = "#9CA3AF" }}>
                   Sign out
                 </button>
               </div>
@@ -181,7 +184,7 @@ export default function Layout() {
         </aside>
 
         {/* MOBILE OVERLAY */}
-        {open && <div className="fixed inset-0 z-40 md:hidden bg-black/20" onClick={() => setOpen(false)} />}
+        {open && <div className="fixed inset-0 z-40 md:hidden" style={{ background: "rgba(0,0,0,0.25)" }} onClick={() => setOpen(false)} />}
 
         {/* MAIN */}
         <main className="flex-1 flex flex-col min-h-screen" style={{ marginLeft: "220px" }}>
@@ -189,10 +192,10 @@ export default function Layout() {
 
           {/* Email Verification Banner */}
           {user && !user.isEmailVerified && (
-            <div style={{ background: "#fafafa", borderBottom: "1px solid #e5e5e5", padding: "10px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 12 }}>
-              <span style={{ color: "#666" }}>Please verify your email address. Check your inbox for a verification link.</span>
+            <div style={{ background: "#FFF7ED", borderBottom: "1px solid #FED7AA", padding: "10px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 12 }}>
+              <span style={{ color: "#111111" }}>Please verify your email address. Check your inbox for a verification link.</span>
               <button onClick={async () => { try { await authAPI.resendVerificationEmail(); alert("Verification email resent!"); } catch { alert("Failed to resend email"); } }}
-                style={{ background: "none", border: "none", color: "#111", cursor: "pointer", fontSize: 11, fontWeight: 500, textDecoration: "underline" }}>
+                style={{ background: "none", border: "none", color: "#0F766E", cursor: "pointer", fontSize: 12, fontWeight: 600, textDecoration: "underline" }}>
                 Resend
               </button>
             </div>
