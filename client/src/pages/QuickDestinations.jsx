@@ -1,6 +1,31 @@
 import { useEffect, useState } from "react";
 import { getQuickDestinations, createQuickDestination, updateQuickDestination, deleteQuickDestination, getLocations } from "../api/axios";
 
+const ICON_OPTIONS = [
+  { value: "library-outline", label: "📚 Library" },
+  { value: "business-outline", label: "🏛️ Building" },
+  { value: "school-outline", label: "🏫 School/Lecture" },
+  { value: "home-outline", label: "🏠 Home/Hostel" },
+  { value: "storefront-outline", label: "🏪 Shop/Market" },
+  { value: "basketball-outline", label: "🏀 Sports" },
+  { value: "fitness-outline", label: "💪 Gym" },
+  { value: "medkit-outline", label: "🏥 Health/Clinic" },
+  { value: "restaurant-outline", label: "🍽️ Food/Cafeteria" },
+  { value: "cafe-outline", label: "☕ Cafe" },
+  { value: "book-outline", label: "📖 Book" },
+  { value: "flask-outline", label: "🧪 Lab" },
+  { value: "musical-notes-outline", label: "🎵 Music/Arts" },
+  { value: "people-outline", label: "👥 Hall/Assembly" },
+  { value: "car-outline", label: "🚗 Parking" },
+  { value: "bus-outline", label: "🚌 Transport" },
+  { value: "location-outline", label: "📍 Location" },
+  { value: "compass-outline", label: "🧭 Compass" },
+  { value: "map-outline", label: "🗺️ Map" },
+  { value: "flag-outline", label: "🚩 Flag" },
+  { value: "star-outline", label: "⭐ Star" },
+  { value: "heart-outline", label: "❤️ Heart" },
+];
+
 export default function QuickDestinations() {
   const [items, setItems] = useState([]);
   const [locations, setLocations] = useState([]);
@@ -55,6 +80,7 @@ export default function QuickDestinations() {
           style={{ fontSize: 12, fontWeight: 600, color: "#FFFFFF", background: items.length >= 6 ? "#9CA3AF" : "#111111", border: "none", borderRadius: 10, padding: "8px 16px", cursor: items.length >= 6 ? "not-allowed" : "pointer" }}>
           <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-3 h-3"><path d="M6 1v10M1 6h10" /></svg>
           New shortcut
+        </button>
       </header>
 
       <div className="flex-1 p-8">
@@ -132,9 +158,20 @@ function QuickDestModal({ initial, locations, onClose, onSave }) {
               name="label" value={form.label} onChange={h} placeholder="e.g. Library" />
           </div>
           <div>
-            <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#111111", marginBottom: 8 }}>Icon (emoji)</label>
-            <input className="w-full outline-none" style={{ padding: "10px 14px", border: "1px solid #D8DEDA", borderRadius: 10, fontSize: 14, color: "#111111", background: "#FFFFFF", boxSizing: "border-box" }}
-              name="icon" value={form.icon} onChange={h} placeholder="e.g. 📚" />
+            <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#111111", marginBottom: 8 }}>Icon</label>
+            <select className="w-full outline-none" style={{ padding: "10px 14px", border: "1px solid #D8DEDA", borderRadius: 10, fontSize: 14, color: "#111111", background: "#FFFFFF", boxSizing: "border-box" }}
+              name="icon" value={form.icon} onChange={h}>
+              <option value="">— Select icon —</option>
+              {ICON_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+            {form.icon && (
+              <div className="mt-2 flex items-center gap-2" style={{ fontSize: 12, color: "#6B7280" }}>
+                <span>Preview:</span>
+                <span style={{ fontFamily: "monospace", fontSize: 13, color: "#111111", background: "#F3F4F6", padding: "2px 8px", borderRadius: 4 }}>{form.icon}</span>
+              </div>
+            )}
           </div>
           <div>
             <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#111111", marginBottom: 8 }}>Linked Location</label>
