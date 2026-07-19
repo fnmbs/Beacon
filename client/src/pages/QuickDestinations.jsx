@@ -49,16 +49,22 @@ export default function QuickDestinations() {
       <header className="flex items-center justify-between px-8 shrink-0" style={{ height: "48px", background: "#FFFFFF", borderBottom: "1px solid #E5E7EB" }}>
         <div className="flex items-center gap-3">
           <span style={{ fontSize: 13, fontWeight: 600, color: "#111111" }}>Quick Destinations</span>
-          <span style={{ fontSize: 11, color: "#9CA3AF", fontWeight: 500 }}>{items.length}</span>
+          <span style={{ fontSize: 11, color: "#9CA3AF", fontWeight: 500 }}>{items.length} / 6 slots</span>
         </div>
-        <button onClick={() => setModal("new")} className="flex items-center gap-1.5"
-          style={{ fontSize: 12, fontWeight: 600, color: "#FFFFFF", background: "#111111", border: "none", borderRadius: 10, padding: "8px 16px", cursor: "pointer" }}>
+        <button onClick={() => setModal("new")} disabled={items.length >= 6} className="flex items-center gap-1.5"
+          style={{ fontSize: 12, fontWeight: 600, color: "#FFFFFF", background: items.length >= 6 ? "#9CA3AF" : "#111111", border: "none", borderRadius: 10, padding: "8px 16px", cursor: items.length >= 6 ? "not-allowed" : "pointer" }}>
           <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-3 h-3"><path d="M6 1v10M1 6h10" /></svg>
           New shortcut
-        </button>
       </header>
 
       <div className="flex-1 p-8">
+        <div className="mb-4 flex items-center gap-2" style={{ fontSize: 12, color: "#6B7280" }}>
+          <div style={{ flex: 1, height: 6, background: "#E5E7EB", borderRadius: 3, overflow: "hidden" }}>
+            <div style={{ width: `${(items.length / 6) * 100}%`, height: "100%", background: "#0F766E", borderRadius: 3, transition: "width 0.3s" }} />
+          </div>
+          <span style={{ fontWeight: 600 }}>{items.length}/6</span>
+          <span>slots used on mobile</span>
+        </div>
         <div style={{ background: "#FFFFFF", border: "1px solid #E5E7EB", borderRadius: 12, overflow: "hidden" }}>
           <div className="grid px-5 py-3" style={{ gridTemplateColumns: "0.4fr 0.6fr 1fr 0.8fr 60px", borderBottom: "1px solid #E5E7EB", background: "#F9FAFB" }}>
             {["Label", "Icon", "Linked Location", "Keywords", ""].map((h) => (
