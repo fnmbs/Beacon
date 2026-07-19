@@ -38,7 +38,7 @@ export default function QuickDestinations() {
   const fetch = async () => {
     setLoading(true);
     try {
-      const [res, locRes] = await Promise.all([getQuickDestinations(), getLocations(1, 200)]);
+      const [res, locRes] = await Promise.all([getQuickDestinations(), getLocations(1, 1000)]);
       setItems(res.data.data);
       setLocations(locRes.data.locations);
     } catch { /* ignore */ }
