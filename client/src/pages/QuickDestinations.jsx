@@ -116,7 +116,7 @@ export default function QuickDestinations() {
         </div>
       </div>
 
-      {modal && <QuickDestModal initial={modal === "new" ? null : modal} locations={locations} onClose={() => setModal(null)} onSave={save} />}
+      {modal && <QuickDestModal initial={modal === "new" ? null : modal} locations={locations.filter(l => l.type !== "junction")} onClose={() => setModal(null)} onSave={save} />}
 
       {toast && <div className="fixed bottom-5 right-5 px-4 py-2.5 z-50" style={{ background: "#111111", color: "#FFFFFF", fontSize: 12, fontWeight: 600, borderRadius: 10 }}>{toast}</div>}
     </div>
