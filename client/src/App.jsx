@@ -10,6 +10,7 @@ import NavigationTester from "./pages/NavigationTester";
 import MapEditor from "./pages/MapEditor";
 import Academic from "./pages/Academic";
 import CampusBoundary from "./pages/CampusBoundary";
+import QuickDestinations from "./pages/QuickDestinations";
 import Login from "./pages/Login";
 import AdminLogin from "./pages/AdminLogin";
 import Register from "./pages/Register";
@@ -44,6 +45,7 @@ export default function App() {
               <Route path="editor" element={<MapEditor />} />
               <Route path="campus-boundary" element={<CampusBoundary />} />
               <Route path="academics" element={<Academic />} />
+              <Route path="quick-destinations" element={<QuickDestinations />} />
             </Route>
 
             {/* Fallback */}

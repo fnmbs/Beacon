@@ -163,6 +163,13 @@ export const createTimetableEntry = (data) => api.post("/timetable", data);
 export const deleteTimetableEntry = (id) => api.delete(`/timetable/${id}`);
 export const updateTimetableEntry = (id, data) => api.put(`/timetable/${id}`, data);
 
+// Quick Destinations
+export const getQuickDestinations = () => api.get("/quick-destinations");
+export const getQuickDestinationById = (id) => api.get(`/quick-destinations/${id}`);
+export const createQuickDestination = (data) => api.post("/quick-destinations", data);
+export const updateQuickDestination = (id, data) => api.put(`/quick-destinations/${id}`, data);
+export const deleteQuickDestination = (id) => api.delete(`/quick-destinations/${id}`);
+
 export default api;
 
 //lecturers

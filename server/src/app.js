@@ -13,6 +13,7 @@ import authRoutes from "./routes/auth.routes.js";
 import adminAuthRoutes from "./routes/adminAuth.routes.js";
 import notesRoutes from "./routes/notes.routes.js";
 import campusRoutes from "./routes/campus.routes.js";
+import quickDestinationRoutes from "./routes/quickDestination.routes.js";
 import {
   testDatabase,
   checkUsersTable,
@@ -97,6 +98,7 @@ app.use("/api/v1/courses", courseRoutes);
 app.use("/api/v1/timetable", timetableRoutes);
 app.use("/api/v1/notes", notesRoutes);
 app.use("/api/v1/campus", campusRoutes);
+app.use("/api/v1/quick-destinations", quickDestinationRoutes);
 
 // ==================== ERROR HANDLING ====================
 // 404 handler

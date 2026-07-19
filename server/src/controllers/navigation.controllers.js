@@ -25,6 +25,21 @@ export const navigate = async (req, res) => {
       locationMap[String(loc.id)] = loc.name;
     });
 
+    if (String(from) === String(to)) {
+      const loc = locationResult.rows.find((l) => String(l.id) === String(from));
+      return res.status(200).json({
+        success: true,
+        alreadyThere: true,
+        message: `You're already at ${loc?.name || "this location"}`,
+        from: locationMap[String(from)] || from,
+        to: locationMap[String(to)] || to,
+        totalDistance: 0,
+        estimatedWalkingTimeSeconds: 0,
+        estimatedWalkingTimeMinutes: 0,
+        steps: [],
+      });
+    }
+
     // Build graph
     const graph = buildGraph(pathResult.rows);
 

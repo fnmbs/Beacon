@@ -271,6 +271,20 @@ const createTables = async () => {
     `);
     console.log("✅ dean_id and head_id added");
 
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS quick_destinations (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        label VARCHAR(255) NOT NULL,
+        icon VARCHAR(100),
+        location_id UUID REFERENCES locations(id) ON DELETE SET NULL,
+        match_keywords TEXT[] DEFAULT ARRAY[]::text[],
+        sort_order INT DEFAULT 0,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      );
+    `);
+    console.log("✅ quick_destinations table created");
+
     console.log("All tables created successfully with UUIDs!");
   } catch (err) {
     console.error("Error creating tables:", err);

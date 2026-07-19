@@ -81,6 +81,16 @@ const NAV = [
       </svg>
     ),
   },
+  {
+    to: "/quick-destinations",
+    label: "Quick Destinations",
+    icon: (
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-4 h-4">
+        <path d="M2 8l6-6 6 6" />
+        <path d="M4 6v6h3v-3h2v3h3V6" />
+      </svg>
+    ),
+  },
 ];
 
 export default function Layout() {
